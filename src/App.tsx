@@ -1,10 +1,10 @@
 import Signup from "./components/Signup";
 import { AuthProvider } from "./AuthContext";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import Dashboard from "./components/Dashboard";
 import Login from "./components/Login";
 import ForgotPassword from "./components/ForgotPassword";
 import PrivateRoutes from "./components/PrivateRoutes";
+import Home from "./components/Dashboard/Home";
 
 function App() {
   return (
@@ -17,7 +17,7 @@ function App() {
           <AuthProvider>
             <Routes>
               <Route element={<PrivateRoutes />}>
-                <Route path="/" element={<Dashboard />} />
+                <Route path="/" element={<Home />} />
               </Route>
               <Route path="/signup" element={<Signup />} />
               <Route path="/login" element={<Login />} />

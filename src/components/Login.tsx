@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { useAuth } from "../AuthContext";
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
   const emailRef = useRef<any>(null);
@@ -8,13 +9,16 @@ export default function Login() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const navigate = useNavigate();
+
   async function handleSubmit(e: any) {
     e.preventDefault();
 
     try {
       setError("");
       setLoading(true);
-      login && await (login(emailRef.current.value, passwordRef.current.value))
+      login && (await login(emailRef.current.value, passwordRef.current.value));
+      navigate("/");
     } catch {
       setError("Failed to log in");
     }

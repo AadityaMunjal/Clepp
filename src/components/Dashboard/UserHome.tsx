@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { useAuth } from "../AuthContext";
+import { useAuth } from "../../AuthContext";
 
-export default function Dashboard() {
+export default function UserDashboard() {
   const [error, setError] = useState("");
   const { currentUser, logout } = useAuth();
 
@@ -19,7 +19,7 @@ export default function Dashboard() {
     <>
       <div>
         <div>
-          <h2 className="text-center mb-4">Profile</h2>
+          <h2 className="text-center mb-4">USER DASHBOARD</h2>
           {error && <p>{error}</p>}
           <strong>Email:</strong> {JSON.stringify(currentUser)}
         </div>
