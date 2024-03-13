@@ -3,8 +3,11 @@ import { AuthProvider } from "./AuthContext";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Login from "./components/Login";
 import ForgotPassword from "./components/ForgotPassword";
-import PrivateRoutes from "./components/PrivateRoutes";
-import Home from "./components/Dashboard/Home";
+import AuthRequired from "./components/AuthRequired";
+import UserDashboard from "./components/Dashboard/UserHome";
+import AdminDashboard from "./components/Dashboard/AdminHome";
+import AdminRequired from "./components/AdminRequired";
+import UserRequired from "./components/UserRequired";
 
 function App() {
   return (
@@ -16,8 +19,13 @@ function App() {
         <Router>
           <AuthProvider>
             <Routes>
-              <Route element={<PrivateRoutes />}>
-                <Route path="/" element={<Home />} />
+              <Route element={<AuthRequired />}>
+                <Route element={<UserRequired />}>
+                  <Route path="/" element={<UserDashboard />} />
+                </Route>
+                <Route element={<AdminRequired />}>
+                  <Route path="admin" element={<AdminDashboard />} />
+                </Route>
               </Route>
               <Route path="/signup" element={<Signup />} />
               <Route path="/login" element={<Login />} />

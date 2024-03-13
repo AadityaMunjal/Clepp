@@ -14,6 +14,7 @@ interface AuthContext {
   signup: null | ((email: string, password: string) => Promise<any>);
   logout: null | (() => Promise<any>);
   resetPassword: null | ((email: string) => Promise<any>);
+  isAdmin: null | (() => boolean);
 }
 
 const AuthContext = createContext<AuthContext>({
@@ -22,6 +23,7 @@ const AuthContext = createContext<AuthContext>({
   signup: null,
   logout: null,
   resetPassword: null,
+  isAdmin: null,
 });
 
 export function useAuth() {
@@ -48,6 +50,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return sendPasswordResetEmail(auth, email);
   }
 
+  function isAdmin() {
+    return currentUser?.email === import.meta.env.VITE_ADMIN_EMAIL;
+  }
+
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       setCurrentUser(user);
@@ -63,6 +69,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     signup,
     logout,
     resetPassword,
+    isAdmin,
   };
 
   return (
