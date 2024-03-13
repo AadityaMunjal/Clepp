@@ -1,9 +1,6 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
-import prisma from "./prismadb";
-
-import { Request, Response } from "express";
 
 dotenv.config();
 
@@ -12,12 +9,13 @@ const port = process.env.PORT;
 
 app.use(cors());
 
-app.get("/", async (req: Request, res: Response) => {
-  req;
-  const assignments = await prisma.assignment.findMany();
+const assignmentRoutes = require("./routes/assignments");
+const questionRoutes = require("./routes/questions");
+const userRoutes = require("./routes/user");
 
-  res.json(assignments);
-});
+app.use("/assignments", assignmentRoutes);
+app.use("/questions", questionRoutes);
+app.use("/user", userRoutes);
 
 app.listen(port, () => {
   console.log(`[server]: Server is running at http://localhost:${port}`);

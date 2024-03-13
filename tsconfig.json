@@ -9,7 +9,7 @@
     "moduleResolution": "node",
     "removeComments": true,
     "noImplicitAny": true,
-    "strict": false,
+    "strict": true,
     "noImplicitThis": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
