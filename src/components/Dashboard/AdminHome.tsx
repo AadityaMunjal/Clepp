@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "../../AuthContext";
+import { Link } from "react-router-dom";
 
 export default function UserDashboard() {
   const [error, setError] = useState("");
@@ -21,7 +22,8 @@ export default function UserDashboard() {
         <div>
           <h2 className="text-center mb-4">ADMIN DASHBOARD</h2>
           {error && <p>{error}</p>}
-          <strong>Email:</strong> {JSON.stringify(currentUser)}
+          {/* <strong>Email:</strong> {JSON.stringify(currentUser)} */}
+          <Link to="/admin/create">Create assignment</Link>
         </div>
       </div>
       <div className="w-100 text-center mt-2">
