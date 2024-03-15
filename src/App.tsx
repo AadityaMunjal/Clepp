@@ -10,37 +10,33 @@ import AdminRequired from "./components/AdminRequired";
 import UserRequired from "./components/UserRequired";
 import CreateAssignment from "./components/CreateAssignment";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import "./App.css";
 
 const queryClient = new QueryClient();
 
 function App() {
   return (
-    <div
-      className="d-flex align-items-center justify-content-center"
-      style={{ minHeight: "100vh" }}
-    >
-      <div className="w-100" style={{ maxWidth: "400px" }}>
-        <Router>
-          <QueryClientProvider client={queryClient}>
-            <AuthProvider>
-              <Routes>
-                <Route element={<AuthRequired />}>
-                  <Route element={<UserRequired />}>
-                    <Route path="/" element={<UserDashboard />} />
-                  </Route>
-                  <Route element={<AdminRequired />}>
-                    <Route path="admin" element={<AdminDashboard />} />
-                    <Route path="admin/create" element={<CreateAssignment />} />
-                  </Route>
+    <div>
+      <Router>
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>
+            <Routes>
+              <Route element={<AuthRequired />}>
+                <Route element={<UserRequired />}>
+                  <Route path="/" element={<UserDashboard />} />
                 </Route>
-                <Route path="/signup" element={<Signup />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/forgot-password" element={<ForgotPassword />} />
-              </Routes>
-            </AuthProvider>
-          </QueryClientProvider>
-        </Router>
-      </div>
+                <Route element={<AdminRequired />}>
+                  <Route path="admin" element={<AdminDashboard />} />
+                  <Route path="admin/create" element={<CreateAssignment />} />
+                </Route>
+              </Route>
+              <Route path="/signup" element={<Signup />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+            </Routes>
+          </AuthProvider>
+        </QueryClientProvider>
+      </Router>
     </div>
   );
 }
