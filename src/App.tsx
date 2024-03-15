@@ -1,6 +1,7 @@
 import Signup from "./components/Authentication/Signup";
 import { AuthProvider } from "./components/Contexts/AuthContext";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import Login from "./components/Authentication/Login";
 import ForgotPassword from "./components/Authentication/ForgotPassword";
 import AuthRequired from "./components/AuthRouting/AuthRequired";
@@ -14,7 +15,11 @@ import "./App.css";
 import { SidebarProvider } from "./components/Contexts/SidebarContext";
 import AdminViewAssignment from "./components/Admin/AdminViewAssignment";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: { refetchOnWindowFocus: false, staleTime: 1000 * 60 * 5 },
+  },
+});
 
 function App() {
   return (
@@ -43,6 +48,7 @@ function App() {
               </Routes>
             </AuthProvider>
           </SidebarProvider>
+          <ReactQueryDevtools />
         </QueryClientProvider>
       </Router>
     </div>
