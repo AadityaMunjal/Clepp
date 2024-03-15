@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useAuth } from "../../AuthContext";
+import { useAuth } from "../Contexts/AuthContext";
 
 export default function UserDashboard() {
   const [error, setError] = useState("");

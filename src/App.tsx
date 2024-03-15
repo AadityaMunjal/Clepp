@@ -1,5 +1,5 @@
 import Signup from "./components/Authentication/Signup";
-import { AuthProvider } from "./AuthContext";
+import { AuthProvider } from "./components/Contexts/AuthContext";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Login from "./components/Authentication/Login";
 import ForgotPassword from "./components/Authentication/ForgotPassword";
@@ -11,6 +11,8 @@ import UserRequired from "./components/AuthRouting/UserRequired";
 import CreateAssignment from "./components/Admin/CreateAssignment";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import "./App.css";
+import { SidebarProvider } from "./components/Contexts/SidebarContext";
+import AdminViewAssignment from "./components/Admin/AdminViewAssignment";
 
 const queryClient = new QueryClient();
 
@@ -19,22 +21,28 @@ function App() {
     <div>
       <Router>
         <QueryClientProvider client={queryClient}>
-          <AuthProvider>
-            <Routes>
-              <Route element={<AuthRequired />}>
-                <Route element={<UserRequired />}>
-                  <Route path="/" element={<UserDashboard />} />
+          <SidebarProvider>
+            <AuthProvider>
+              <Routes>
+                <Route element={<AuthRequired />}>
+                  <Route element={<UserRequired />}>
+                    <Route path="/" element={<UserDashboard />} />
+                  </Route>
+                  <Route element={<AdminRequired />}>
+                    <Route path="admin" element={<AdminDashboard />} />
+                    <Route path="admin/create" element={<CreateAssignment />} />
+                    <Route
+                      path="admin/assignment/:id"
+                      element={<AdminViewAssignment />}
+                    />
+                  </Route>
                 </Route>
-                <Route element={<AdminRequired />}>
-                  <Route path="admin" element={<AdminDashboard />} />
-                  <Route path="admin/create" element={<CreateAssignment />} />
-                </Route>
-              </Route>
-              <Route path="/signup" element={<Signup />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/forgot-password" element={<ForgotPassword />} />
-            </Routes>
-          </AuthProvider>
+                <Route path="/signup" element={<Signup />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+              </Routes>
+            </AuthProvider>
+          </SidebarProvider>
         </QueryClientProvider>
       </Router>
     </div>
