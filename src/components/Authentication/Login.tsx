@@ -1,24 +1,26 @@
 import { useRef, useState } from "react";
-import { useAuth } from "../AuthContext";
+import { useAuth } from "../../AuthContext";
+import { useNavigate } from "react-router-dom";
 
-export default function ForgotPassword() {
-  const emailRef = useRef();
-  const { resetPassword } = useAuth();
+export default function Login() {
+  const emailRef = useRef<any>(null);
+  const passwordRef = useRef<any>(null);
+  const { login } = useAuth();
   const [error, setError] = useState("");
-  const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
-  async function handleSubmit(e) {
+  const navigate = useNavigate();
+
+  async function handleSubmit(e: any) {
     e.preventDefault();
 
     try {
-      setMessage("");
       setError("");
       setLoading(true);
-      resetPassword && (await resetPassword(emailRef.current?.value));
-      setMessage("Check your inbox for further instructions");
+      login && (await login(emailRef.current.value, passwordRef.current.value));
+      navigate("/");
     } catch {
-      setError("Failed to reset password");
+      setError("Failed to log in");
     }
 
     setLoading(false);
@@ -28,20 +30,23 @@ export default function ForgotPassword() {
     <>
       <div>
         <div>
-          <h2 className="text-center mb-4">Password Reset</h2>
-          {error && <p variant="danger">{error}</p>}
-          {message && <p variant="success">{message}</p>}
+          <h2 className="text-center mb-4">Log In</h2>
+          {error && <p>{error}</p>}
           <form onSubmit={handleSubmit}>
             <div id="email">
               <label>Email</label>
               <input type="email" ref={emailRef} required />
             </div>
+            <div id="password">
+              <label>Password</label>
+              <input type="password" ref={passwordRef} required />
+            </div>
             <button disabled={loading} className="w-100" type="submit">
-              Reset Password
+              Log In
             </button>
           </form>
           <div className="w-100 text-center mt-3">
-            <a href="/login">Login </a>
+            <a href="/forgot-password">Forgot Password?</a>
           </div>
         </div>
       </div>

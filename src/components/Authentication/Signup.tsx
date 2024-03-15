@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { useAuth } from "../AuthContext";
+import { useAuth } from "../../AuthContext";
 
 export default function Signup() {
   const emailRef = useRef<any>(null);

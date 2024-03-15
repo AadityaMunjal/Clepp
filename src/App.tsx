@@ -1,14 +1,14 @@
-import Signup from "./components/Signup";
+import Signup from "./components/Authentication/Signup";
 import { AuthProvider } from "./AuthContext";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import Login from "./components/Login";
-import ForgotPassword from "./components/ForgotPassword";
-import AuthRequired from "./components/AuthRequired";
+import Login from "./components/Authentication/Login";
+import ForgotPassword from "./components/Authentication/ForgotPassword";
+import AuthRequired from "./components/AuthRouting/AuthRequired";
 import UserDashboard from "./components/Dashboard/UserHome";
 import AdminDashboard from "./components/Dashboard/AdminHome";
-import AdminRequired from "./components/AdminRequired";
-import UserRequired from "./components/UserRequired";
-import CreateAssignment from "./components/CreateAssignment";
+import AdminRequired from "./components/AuthRouting/AdminRequired";
+import UserRequired from "./components/AuthRouting/UserRequired";
+import CreateAssignment from "./components/Admin/CreateAssignment";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import "./App.css";
 
