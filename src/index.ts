@@ -8,7 +8,11 @@ const app = express();
 const port = process.env.PORT;
 
 app.use(cors());
-
+app.use(
+  express.json({
+    type: ["application/json", "text/plain"],
+  })
+);
 const assignmentRoutes = require("./routes/assignments");
 const questionRoutes = require("./routes/questions");
 const userRoutes = require("./routes/user");
