@@ -14,6 +14,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import "./App.css";
 import { SidebarProvider } from "./components/Contexts/SidebarContext";
 import AdminViewAssignment from "./components/Admin/AdminViewAssignment";
+import UserViewAssignment from "./User/UserViewAssignment";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -32,6 +33,10 @@ function App() {
                 <Route element={<AuthRequired />}>
                   <Route element={<UserRequired />}>
                     <Route path="/" element={<UserDashboard />} />
+                    <Route
+                      path="assignment/:id"
+                      element={<UserViewAssignment />}
+                    />
                   </Route>
                   <Route element={<AdminRequired />}>
                     <Route path="admin" element={<AdminDashboard />} />

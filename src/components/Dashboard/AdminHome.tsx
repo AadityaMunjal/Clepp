@@ -61,7 +61,7 @@ const AssignmentCard = ({ assignment }) => {
           </div>
         </div>
 
-        <div className="bg-green-500 rounded-lg h-8 text-center p-1">
+        <div className="bg-blue-500 rounded-lg h-8 text-center p-1">
           <span className="font-semibold">DUE: </span>
           {readableDate}
         </div>

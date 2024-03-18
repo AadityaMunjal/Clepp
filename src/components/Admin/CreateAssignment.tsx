@@ -1,5 +1,5 @@
 import { useReducer, useState } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 
 function questionsReducer(state: any, action: any) {
@@ -49,10 +49,10 @@ export default function CreateAssignment() {
   ]);
 
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const assignmentMutation = useMutation({
     mutationFn: (data) => {
-      // return axios.post("http://localhost:3000/assignments/", data);
       return fetch("http://localhost:3000/assignments/", {
         body: JSON.stringify(data),
         headers: {
@@ -63,6 +63,7 @@ export default function CreateAssignment() {
     },
 
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["assignments"] });
       navigate("/admin");
     },
   });

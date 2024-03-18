@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import { useSidebar } from "../Contexts/SidebarContext";
 
 export interface SidebarAssignmentProps {
@@ -19,13 +20,18 @@ export const SidebarAssignment: React.FC<SidebarAssignmentProps> = ({
   selected,
 }) => {
   const { setSelectedItem } = useSidebar();
+  const navigate = useNavigate();
+
+  const date = new Date(deadline);
+  const readableDate = date.toDateString().split(" ").slice(1, 3).join(" ");
+
   return (
     <div
       className="bg-zinc-800 m-3 pr-2 pl-2 pt-3 pb-3 rounded-lg cursor-pointer border-2"
       style={{ borderColor: selected ? pfpColor : "transparent" }}
       onClick={() => {
         setSelectedItem(id);
-        console.log(id);
+        navigate(`/assignment/${id}`);
       }}
     >
       <div className="flex">
@@ -36,7 +42,7 @@ export const SidebarAssignment: React.FC<SidebarAssignmentProps> = ({
           {year}
         </div>
         <div className="flex items-center m-4">{name}</div>
-        <div>{deadline}</div>
+        <div>{readableDate}</div>
       </div>
     </div>
   );
