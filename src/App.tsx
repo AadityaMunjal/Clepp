@@ -1,4 +1,4 @@
-import Signup from "./components/Authentication/Signup";
+import AddUsers from "./components/Admin/AddUsers";
 import { AuthProvider } from "./components/Contexts/AuthContext";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
@@ -47,7 +47,7 @@ function App() {
                     />
                   </Route>
                 </Route>
-                <Route path="/signup" element={<Signup />} />
+                <Route path="/admin/add-users" element={<AddUsers />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
               </Routes>

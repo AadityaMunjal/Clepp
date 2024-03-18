@@ -104,6 +104,7 @@ export default function UserDashboard() {
         <h2 className="text-center mb-4">ADMIN DASHBOARD</h2>
         <nav>
           <Link to="/admin/create">Create assignment</Link>
+          <Link to="/admin/add-users">Add users</Link>
           <button onClick={handleLogout}>Log Out</button>
         </nav>
         <div>
