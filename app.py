@@ -1,7 +1,9 @@
 import docker
 import uuid
-from flask import Flask, request, jsonify
+from flask import Flask, logging, request, jsonify
 from timeit import default_timer as timer
+
+from flask_cors import cross_origin
 
 
 app = Flask(__name__)
@@ -28,28 +30,32 @@ def execute_code(code):
         )
 
         container_output = ""
+
         for log_line in stream_container_logs(container):
             container_output += log_line
 
         container.stop()
 
         end = timer()
-
+        print(container_output)
         return container_output, end - start
 
     except Exception as e:
         return str(e)
 
 
-@app.route("/execute", methods=["POST"])
+@app.route("/execute", methods=["GET"])
+@cross_origin()
 def handle_execute():
     try:
         data = request.get_json()
-        code = data.get("code")
+        code = data.get("c")
+        print(data)
 
         result, time = execute_code(code)
 
-        return jsonify({"result": result, "execution_time": time})
+        print(jsonify({"result": result}))
+        return jsonify({"result": result, "exec_time": time})
     except Exception as e:
         return jsonify({"error": str(e)})
 
