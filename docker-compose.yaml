@@ -1,0 +1,18 @@
+version: '3'
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:5000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - code-execution-worker
+
+  code-execution-worker:
+    image: python:3.9-slim
+    volumes:
+      - .:/app
+    command: [ "tail", "-f", "/dev/null" ] # Keep the worker container running

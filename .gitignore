@@ -1,3 +1,8 @@
+Dockerfile
+docker-compose.yaml
+.DS_Store
+results.txt
+
 # Logs
 logs
 *.log
