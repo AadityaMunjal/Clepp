@@ -4,12 +4,12 @@
   "description": "Clepp Monorepo",
   "private": true,
   "workspaces": [
-    "API/",
+    "api/",
     "web/",
-    "CEE/"
+    "cee/"
   ],
   "scripts": {
-    "dev": "npm run dev --workspace=web & npm run dev --workspace=API & npm run dev --workspace=CEE"
+    "dev": "npm run dev --workspace=web & npm run dev --workspace=api & npm run dev --workspace=cee"
   },
   "keywords": [],
   "author": "",
