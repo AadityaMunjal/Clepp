@@ -1,3 +1,8 @@
+/API/node_modules
+*.local
+*.env
+/dist
+
 Dockerfile
 docker-compose.yaml
 .DS_Store
@@ -12,7 +17,7 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
+/web/node_modules
 dist
 dist-ssr
 *.local
