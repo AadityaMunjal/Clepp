@@ -1,10 +1,10 @@
 import { SidebarAssignment } from "./SidebarAssignment";
-import { useSidebar } from "../Contexts/SidebarContext";
+import { useSidebar } from "../../contexts/SidebarContext";
 import { useEffect } from "react";
 import Sidebar from "./Sidebar";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { useAuth } from "../Contexts/AuthContext";
+import { useAuth } from "../../contexts/AuthContext";
 
 const HomeSidebar = ({ preSelectedItem }: { preSelectedItem?: string }) => {
   const { currentUser } = useAuth();

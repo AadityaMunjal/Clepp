@@ -1,9 +1,9 @@
 import { useParams } from "react-router-dom";
-import HomeSidebar from "../components/Sidebar/HomeSidebar";
+import HomeSidebar from "../../components/Sidebar/HomeSidebar";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { useAuth } from "../components/Contexts/AuthContext";
+import { useAuth } from "../../contexts/AuthContext";
 
 const Question = ({ prompt, count }) => {
   return (

@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useAuth } from "../Contexts/AuthContext";
-import HomeSidebar from "../Sidebar/HomeSidebar";
+import { useAuth } from "../../contexts/AuthContext";
+import HomeSidebar from "../../components/Sidebar/HomeSidebar";
 
 export default function UserDashboard() {
   const [error, setError] = useState("");

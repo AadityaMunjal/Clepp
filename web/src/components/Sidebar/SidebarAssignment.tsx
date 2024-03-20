@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { useSidebar } from "../Contexts/SidebarContext";
+import { useSidebar } from "../../contexts/SidebarContext";
 
 export interface SidebarAssignmentProps {
   id: string;

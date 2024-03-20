@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { useAuth } from "../Contexts/AuthContext";
+import { useAuth } from "../../contexts/AuthContext";
 
 export default function ForgotPassword() {
   const emailRef = useRef();

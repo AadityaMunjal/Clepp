@@ -1,5 +1,5 @@
 import { Search } from "react-iconly";
-import { useAuth } from "../Contexts/AuthContext";
+import { useAuth } from "../../contexts/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 
