@@ -5,6 +5,7 @@ import axios from "axios";
 
 export default function AddUsers() {
   const { signup, currentUser, logout } = useAuth();
+  const loggedInUID = currentUser?.uid;
 
   // log out current user to support signup of new user
   useEffect(() => {
@@ -64,7 +65,7 @@ export default function AddUsers() {
 
   // store user to db after successful signup
   useEffect(() => {
-    if (!currentUser?.uid) return;
+    if (!currentUser?.uid || currentUser.uid === loggedInUID) return;
     userMutation.mutate(currentUser.uid);
   }, [currentUser]);
 

@@ -1,6 +1,22 @@
-import { useReducer, useState } from "react";
+import { ButtonHTMLAttributes, useReducer, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
+
+interface ButtonProps {
+  props: ButtonHTMLAttributes<HTMLButtonElement>;
+  children: React.ReactNode | string;
+}
+
+const Button: React.FC<ButtonProps> = ({ props, children }) => {
+  return (
+    <button
+      className="bg-cyan-500 px-11 py-3 rounded-md text-white"
+      onClick={() => console.log()}
+    >
+      {children}
+    </button>
+  );
+};
 
 function questionsReducer(state: any, action: any) {
   switch (action.type) {
@@ -154,8 +170,8 @@ export default function CreateAssignment() {
 
   const StageComponents = [<Name />, <Year />, <Deadline />, <Questions />];
   return (
-    <div>
-      <h2>Create assignment</h2>
+    <div className="bg-zinc-800 h-screen text-white">
+      <h2>Create a new assignment (step {stage + 1} of 4)</h2>
       {StageComponents[stage]}
       {stage !== 0 && (
         <button
@@ -167,16 +183,16 @@ export default function CreateAssignment() {
         </button>
       )}
       {stage !== 3 && (
-        <button
+        <Button
           onClick={() => {
             setStage(stage + 1);
           }}
         >
           Next
-        </button>
+        </Button>
       )}
       {stage === 3 && (
-        <button
+        <Button
           onClick={() => {
             const data = { name, year, deadline, questions };
             console.log(data);
@@ -184,7 +200,7 @@ export default function CreateAssignment() {
           }}
         >
           Create
-        </button>
+        </Button>
       )}
     </div>
   );
