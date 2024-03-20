@@ -11,7 +11,7 @@ datasource db {
 }
 
 model User {
-  id    String @id @map("_id") @db.ObjectId
+  id    String @id @map("_id") 
   name  String
   email String @unique
   image String
@@ -22,7 +22,7 @@ model User {
 model Submission {
   id           String @id @default(auto()) @map("_id") @db.ObjectId
   User         User?       @relation(fields: [userId], references: [id])
-  userId       String? @db.ObjectId
+  userId       String? 
   DOS          DateTime
   code        String
   status     String
