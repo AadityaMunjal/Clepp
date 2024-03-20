@@ -34,7 +34,7 @@ test_case_idx = 0
 
 # replacing built in input function with custom input feeder to give in inputs from testcases
 def answer_inputs(_):
-    global input_idx, test_case_idx
+    global input_idx, test_case_idx, testcases
     tc_inputs = testcases[test_case_idx]["__inputs"]
     curr_input = tc_inputs[input_idx]
 
@@ -55,10 +55,7 @@ print(c)
 
 
 def execute_test_cases():
-    r = requests.get("http://127.0.0.1:5000/execute", json={"c": c})
-    print(r.json())
-    res = r.json()["result"].split("\n")
-    __outputs = eval(raw_test_cases)
+    res = requests.get("http://127.0.0.1:5000/execute", json={"c": c}).json()
     print(res)
 
 
