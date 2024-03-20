@@ -4,8 +4,18 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
+import {
+  Assignment,
+  Question as PrismaQuestion,
+  Submission,
+} from "@prisma/client";
 
-const Question = ({ prompt, count }) => {
+interface QuestionProps {
+  prompt: string;
+  count: number;
+}
+
+const Question: React.FC<QuestionProps> = ({ prompt, count }) => {
   return (
     <div className="bg-zinc-700 w-4/6 p-4 mb-8 rounded-md">
       <h2>
@@ -15,7 +25,7 @@ const Question = ({ prompt, count }) => {
   );
 };
 
-export default function UserViewAssignment() {
+const UserViewAssignment: React.FC = () => {
   const { id: assignmentId } = useParams();
   const { currentUser } = useAuth();
 
@@ -24,7 +34,7 @@ export default function UserViewAssignment() {
     queryFn: () => {
       return axios
         .get(`http://localhost:3000/assignments/${assignmentId}`)
-        .then((res) => res.data);
+        .then((res) => res.data as Assignment);
     },
   });
 
@@ -33,13 +43,13 @@ export default function UserViewAssignment() {
     queryFn: () => {
       return axios
         .get(`http://localhost:3000/questions/${assignmentId}`)
-        .then((res) => res.data);
+        .then((res) => res.data as PrismaQuestion[]);
     },
   });
 
-  const [code, setCode] = useState("");
-  const [validCode, setValidCode] = useState(false);
-  const [status, setStatus] = useState("");
+  const [code, setCode] = useState<string>("");
+  const [validCode, setValidCode] = useState<boolean>(false);
+  const [status, setStatus] = useState<String>("");
 
   useEffect(() => {
     if (questions?.length) {
@@ -61,7 +71,7 @@ export default function UserViewAssignment() {
         .get(
           `http://localhost:3000/submissions/${currentUser?.uid}/${assignmentId}`
         )
-        .then((res) => res.data[0]);
+        .then((res) => res.data[0] as Submission);
     },
   });
 
@@ -75,7 +85,7 @@ export default function UserViewAssignment() {
             status: "",
           }
         )
-        .then((res) => res.data);
+        .then((res) => res.data as Submission);
     },
   });
 
@@ -89,7 +99,7 @@ export default function UserViewAssignment() {
             status,
           }
         )
-        .then((res) => res.data);
+        .then((res) => res.data as Submission);
     },
   });
 
@@ -185,4 +195,6 @@ export default function UserViewAssignment() {
       </div>
     </>
   );
-}
+};
+
+export default UserViewAssignment;

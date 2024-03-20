@@ -5,15 +5,16 @@ import {
   signOut,
   sendPasswordResetEmail,
   User,
+  UserCredential,
 } from "firebase/auth";
 import { useContext, useState, useEffect, createContext } from "react";
 
 interface AuthContext {
   currentUser: User | null;
-  login: null | ((email: string, password: string) => Promise<any>);
-  signup: null | ((email: string, password: string) => Promise<any>);
-  logout: null | (() => Promise<any>);
-  resetPassword: null | ((email: string) => Promise<any>);
+  login: null | ((email: string, password: string) => Promise<UserCredential>);
+  signup: null | ((email: string, password: string) => Promise<UserCredential>);
+  logout: null | (() => Promise<void>);
+  resetPassword: null | ((email: string) => Promise<void>);
   isAdmin: null | (() => boolean);
 }
 

@@ -2,21 +2,22 @@ import { useRef, useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 
-export default function Login() {
-  const emailRef = useRef<any>(null);
-  const passwordRef = useRef<any>(null);
+const Login: React.FC = () => {
+  const emailRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
   const { login } = useAuth();
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
 
   const navigate = useNavigate();
 
-  async function handleSubmit(e: any) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
     try {
       setError("");
       setLoading(true);
+      if (!emailRef.current?.value || !passwordRef.current?.value) return;
       login && (await login(emailRef.current.value, passwordRef.current.value));
       navigate("/");
     } catch {
@@ -55,4 +56,6 @@ export default function Login() {
       </div>
     </>
   );
-}
+};
+
+export default Login;

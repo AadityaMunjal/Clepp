@@ -22,7 +22,7 @@ const queryClient = new QueryClient({
   },
 });
 
-function App() {
+const App: React.FC = () => {
   return (
     <div>
       <Router>
@@ -58,6 +58,6 @@ function App() {
       </Router>
     </div>
   );
-}
+};
 
 export default App;

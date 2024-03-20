@@ -5,7 +5,7 @@ export interface SidebarAssignmentProps {
   id: string;
   name: string;
   subText: string;
-  year: 11 | 12;
+  year: "11" | "12";
   pfpColor: string;
   deadline: string;
   selected: boolean;

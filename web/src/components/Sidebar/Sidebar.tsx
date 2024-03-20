@@ -2,6 +2,7 @@ import { Search } from "react-iconly";
 import { useAuth } from "../../contexts/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
+import { User } from "@prisma/client";
 
 interface SideBarProps {
   children?: React.ReactNode;
@@ -15,7 +16,7 @@ const Sidebar: React.FC<SideBarProps> = ({ children }) => {
     queryFn: () => {
       return axios
         .get(`http://localhost:3000/user/${currentUser?.uid}`)
-        .then((res) => res.data);
+        .then((res) => res.data) as Promise<User>;
     },
   });
 

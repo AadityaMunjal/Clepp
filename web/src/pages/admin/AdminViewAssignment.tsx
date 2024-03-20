@@ -1,3 +1,4 @@
+import { Assignment, Question } from "@prisma/client";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { useState } from "react";
@@ -8,13 +9,17 @@ enum Tabs {
   Submissions = "Submissions",
 }
 
-const Questions = ({ assignmentId }) => {
+interface QuestionsProps {
+  assignmentId: string;
+}
+
+const Questions: React.FC<QuestionsProps> = ({ assignmentId }) => {
   const { data: questions, isSuccess: questionsIsSuccess } = useQuery({
     queryKey: ["questions", assignmentId],
     queryFn: () =>
       axios
         .get(`http://localhost:3000/questions/${assignmentId}`)
-        .then((res) => res.data),
+        .then((res) => res.data as Question[]),
   });
 
   return (
@@ -26,13 +31,17 @@ const Questions = ({ assignmentId }) => {
   );
 };
 
-const Submissions = ({ assignmentId }) => {
+interface SubmissionsProps {
+  assignmentId: string;
+}
+
+const Submissions: React.FC<SubmissionsProps> = ({ assignmentId }) => {
   const { data: defaulters, isSuccess: defaultersIsSuccess } = useQuery({
     queryKey: ["defaulters", assignmentId],
     queryFn: () =>
       axios
         .get(`http://localhost:3000/assignments/defaulters/${assignmentId}`)
-        .then((res) => res.data),
+        .then((res) => res.data as string[]),
   });
 
   const { data: submitted, isSuccess: submittedIsSuccess } = useQuery({
@@ -40,8 +49,9 @@ const Submissions = ({ assignmentId }) => {
     queryFn: () =>
       axios
         .get(`http://localhost:3000/assignments/submitted/${assignmentId}`)
-        .then((res) => res.data),
+        .then((res) => res.data as string[]),
   });
+
   return (
     <div>
       <div>Submissions</div>
@@ -58,7 +68,7 @@ export default function AdminViewAssignment() {
     queryFn: () =>
       axios
         .get(`http://localhost:3000/assignments/${assignmentId}`)
-        .then((res) => res.data),
+        .then((res) => res.data as Assignment),
   });
 
   const [activeTab, setActiveTab] = useState<Tabs>(Tabs.Questions);
@@ -85,9 +95,9 @@ export default function AdminViewAssignment() {
       </div>
 
       {activeTab === Tabs.Questions ? (
-        <Questions assignmentId={assignmentId} />
+        <Questions assignmentId={assignmentId!} />
       ) : (
-        <Submissions assignmentId={assignmentId} />
+        <Submissions assignmentId={assignmentId!} />
       )}
     </div>
   );

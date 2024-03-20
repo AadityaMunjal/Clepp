@@ -3,14 +3,25 @@ import { useAuth } from "../../contexts/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
+import { Assignment } from "@prisma/client";
 
 const fetchAllAssignments = () => {
-  return axios.get("http://localhost:3000/assignments").then((res) => res.data);
+  return axios
+    .get("http://localhost:3000/assignments")
+    .then((res) => res.data as Assignment[]);
 };
 
-const AssignmentCard = ({ assignment }) => {
-  const date = new Date(assignment.deadline);
-  const readableDate = date.toDateString().split(" ").slice(1, 3).join(" ");
+interface AssignmentCardProps {
+  assignment: Assignment;
+}
+
+const AssignmentCard: React.FC<AssignmentCardProps> = ({ assignment }) => {
+  const date: Date = new Date(assignment.deadline);
+  const readableDate: string = date
+    .toDateString()
+    .split(" ")
+    .slice(1, 3)
+    .join(" ");
   const navigate = useNavigate();
 
   const [percentage, setPercentage] = useState(0);
@@ -24,7 +35,7 @@ const AssignmentCard = ({ assignment }) => {
     queryFn: () =>
       axios
         .get(`http://localhost:3000/assignments/defaulters/${assignment.id}`)
-        .then((res) => res.data),
+        .then((res) => res.data) as Promise<string[]>,
   });
 
   const { data: submitted, isSuccess: submittedIsSuccess } = useQuery({
@@ -32,7 +43,7 @@ const AssignmentCard = ({ assignment }) => {
     queryFn: () =>
       axios
         .get(`http://localhost:3000/assignments/submitted/${assignment.id}`)
-        .then((res) => res.data),
+        .then((res) => res.data) as Promise<string[]>,
   });
 
   useEffect(() => {
@@ -111,7 +122,7 @@ export default function UserDashboard() {
           <div>Active assignments</div>
           <div className="grid grid-cols-3">
             {assignments &&
-              assignments.map((a) => {
+              assignments.map((a: Assignment) => {
                 return <AssignmentCard assignment={a} key={a.id} />;
               })}
           </div>

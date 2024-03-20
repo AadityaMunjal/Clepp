@@ -5,8 +5,13 @@ import Sidebar from "./Sidebar";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { useAuth } from "../../contexts/AuthContext";
+import { Assignment, User } from "@prisma/client";
 
-const HomeSidebar = ({ preSelectedItem }: { preSelectedItem?: string }) => {
+interface HomeSidebarProps {
+  preSelectedItem?: string;
+}
+
+const HomeSidebar: React.FC<HomeSidebarProps> = ({ preSelectedItem }) => {
   const { currentUser } = useAuth();
   const { selectedItem, setSelectedItem } = useSidebar();
 
@@ -16,7 +21,7 @@ const HomeSidebar = ({ preSelectedItem }: { preSelectedItem?: string }) => {
     queryFn: () => {
       return axios
         .get(`http://localhost:3000/user/${currentUser?.uid}`)
-        .then((res) => res.data);
+        .then((res) => res.data) as Promise<User>;
     },
   });
 
@@ -25,8 +30,8 @@ const HomeSidebar = ({ preSelectedItem }: { preSelectedItem?: string }) => {
     enabled: !!user?.year,
     queryFn: () => {
       return axios
-        .get(`http://localhost:3000/assignments/year/${user.year}`)
-        .then((res) => res.data);
+        .get(`http://localhost:3000/assignments/year/${user?.year}`)
+        .then((res) => res.data) as Promise<Assignment[]>;
     },
   });
 
@@ -46,9 +51,9 @@ const HomeSidebar = ({ preSelectedItem }: { preSelectedItem?: string }) => {
                 name={a.name}
                 pfpColor={a.pfp_color}
                 subText=""
-                year={a.year as unknown as 11 | 12}
+                year={a.year as "11" | "12"}
                 id={a.id}
-                deadline={a.deadline}
+                deadline={a.deadline.toString()}
                 selected={a.id === selectedItem}
                 key={a.id}
               />

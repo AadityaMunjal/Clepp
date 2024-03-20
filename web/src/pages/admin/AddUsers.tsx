@@ -3,7 +3,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 
-export default function AddUsers() {
+const AddUsers: React.FC = () => {
   const { signup, currentUser, logout } = useAuth();
   const loggedInUID = currentUser?.uid;
 
@@ -12,13 +12,13 @@ export default function AddUsers() {
     logout && logout().then(() => console.log("logged out current user"));
   }, []);
 
-  const [email, setEmail] = useState("");
-  const [name, setName] = useState("");
-  const [image, setImage] = useState("");
-  const [year, setYear] = useState("11");
+  const [email, setEmail] = useState<string>("");
+  const [name, setName] = useState<string>("");
+  const [image, setImage] = useState<string>("");
+  const [year, setYear] = useState<"11" | "12">("11");
 
   const [error, setError] = useState<any>();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const resetState = () => {
     setEmail("");
@@ -28,7 +28,7 @@ export default function AddUsers() {
   };
 
   const userMutation = useMutation({
-    mutationFn: (id) => {
+    mutationFn: (id: string) => {
       const data = {
         id,
         email,
@@ -104,7 +104,10 @@ export default function AddUsers() {
           </div>
           <div>
             <label>Year</label>
-            <select name="cars" onChange={(e) => setYear(e.target.value)}>
+            <select
+              name="cars"
+              onChange={(e) => setYear(e.target.value as "11" | "12")}
+            >
               <option value="11">11</option>
               <option value="12">12</option>
             </select>
@@ -119,4 +122,6 @@ export default function AddUsers() {
       </div>
     </>
   );
-}
+};
+
+export default AddUsers;

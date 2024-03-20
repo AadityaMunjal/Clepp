@@ -1,20 +1,21 @@
 import { useRef, useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 
-export default function ForgotPassword() {
-  const emailRef = useRef();
+const ForgotPassword: React.FC = () => {
+  const emailRef = useRef<HTMLInputElement>(null);
   const { resetPassword } = useAuth();
-  const [error, setError] = useState("");
-  const [message, setMessage] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string>("");
+  const [message, setMessage] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
 
-  async function handleSubmit(e) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
     try {
       setMessage("");
       setError("");
       setLoading(true);
+      if (!emailRef.current?.value) return;
       resetPassword && (await resetPassword(emailRef.current?.value));
       setMessage("Check your inbox for further instructions");
     } catch {
@@ -29,8 +30,8 @@ export default function ForgotPassword() {
       <div>
         <div>
           <h2 className="text-center mb-4">Password Reset</h2>
-          {error && <p variant="danger">{error}</p>}
-          {message && <p variant="success">{message}</p>}
+          {error && <p>{error}</p>}
+          {message && <p>{message}</p>}
           <form onSubmit={handleSubmit}>
             <div id="email">
               <label>Email</label>
@@ -50,4 +51,6 @@ export default function ForgotPassword() {
       </div>
     </>
   );
-}
+};
+
+export default ForgotPassword;

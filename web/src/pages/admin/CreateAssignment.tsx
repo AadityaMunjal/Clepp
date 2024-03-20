@@ -1,6 +1,7 @@
 import { ButtonHTMLAttributes, useReducer, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
+import { Assignment } from "@prisma/client";
 
 interface ButtonProps {
   props: ButtonHTMLAttributes<HTMLButtonElement>;
@@ -55,6 +56,8 @@ enum Stage {
   "QUESTIONS",
 }
 
+type CreateAssignmentData = Omit<Assignment, "id" | "DOC" | "pfp_color">;
+
 export default function CreateAssignment() {
   const [stage, setStage] = useState<Stage>(0);
   const [name, setName] = useState("");
@@ -68,7 +71,7 @@ export default function CreateAssignment() {
   const queryClient = useQueryClient();
 
   const assignmentMutation = useMutation({
-    mutationFn: (data) => {
+    mutationFn: (data: CreateAssignmentData) => {
       return fetch("http://localhost:3000/assignments/", {
         body: JSON.stringify(data),
         headers: {
@@ -183,16 +186,16 @@ export default function CreateAssignment() {
         </button>
       )}
       {stage !== 3 && (
-        <Button
+        <button
           onClick={() => {
             setStage(stage + 1);
           }}
         >
           Next
-        </Button>
+        </button>
       )}
       {stage === 3 && (
-        <Button
+        <button
           onClick={() => {
             const data = { name, year, deadline, questions };
             console.log(data);
@@ -200,7 +203,7 @@ export default function CreateAssignment() {
           }}
         >
           Create
-        </Button>
+        </button>
       )}
     </div>
   );

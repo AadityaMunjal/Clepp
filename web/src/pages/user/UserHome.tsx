@@ -2,9 +2,9 @@ import { useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import HomeSidebar from "../../components/Sidebar/HomeSidebar";
 
-export default function UserDashboard() {
+const UserDashboard: React.FC = () => {
   const [error, setError] = useState("");
-  const { currentUser, logout } = useAuth();
+  const { logout } = useAuth();
 
   async function handleLogout() {
     setError("");
@@ -20,6 +20,7 @@ export default function UserDashboard() {
     <>
       <div className="flex">
         <HomeSidebar />
+        {JSON.stringify(error)}
         {/* <div className="w-screen">
           <h2 className="text-center mb-4">USER DASHBOARD</h2>
           {error && <p>{error}</p>}
@@ -31,4 +32,6 @@ export default function UserDashboard() {
       </div>
     </>
   );
-}
+};
+
+export default UserDashboard;
