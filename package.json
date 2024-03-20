@@ -1,0 +1,17 @@
+{
+  "name": "clepp",
+  "version": "1.0.0",
+  "description": "Clepp Monorepo",
+  "private": true,
+  "workspaces": [
+    "API/",
+    "web/",
+    "CEE/"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=web & npm run dev --workspace=API & npm run dev --workspace=CEE"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

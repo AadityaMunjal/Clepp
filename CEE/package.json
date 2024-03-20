@@ -1,0 +1,12 @@
+{
+  "name": "cee",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "python3 app.py"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
