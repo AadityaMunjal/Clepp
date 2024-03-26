@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import HomeSidebar from "../../components/Sidebar/HomeSidebar";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
+import { Assignment, User } from "@prisma/client";
 
 const UserDashboard: React.FC = () => {
   const [error, setError] = useState("");
@@ -16,10 +19,34 @@ const UserDashboard: React.FC = () => {
     }
   }
 
+  const { currentUser } = useAuth();
+
+  const { data: fetchedUser } = useQuery({
+    queryKey: ["user", currentUser?.uid],
+    enabled: !!currentUser?.uid,
+    queryFn: () => {
+      return axios
+        .get(`http://localhost:3000/user/${currentUser?.uid}`)
+        .then((res) => res.data as User);
+    },
+  });
+
+  const { data: fetchedAssignments } = useQuery({
+    queryKey: ["assignments"],
+    enabled: !!fetchedUser?.year,
+    queryFn: () => {
+      return axios
+        .get(`http://localhost:3000/assignments/year/${fetchedUser?.year}`)
+        .then((res) => {
+          return res.data as Assignment[];
+        });
+    },
+  });
+
   return (
     <>
       <div className="flex">
-        <HomeSidebar />
+        <HomeSidebar assignments={fetchedAssignments || null} />
         {JSON.stringify(error)}
         {/* <div className="w-screen">
           <h2 className="text-center mb-4">USER DASHBOARD</h2>
