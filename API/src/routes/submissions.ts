@@ -23,15 +23,15 @@ router.get("/:uid/:aid", async (req: Request, res: Response) => {
   }
 });
 
-router.post("/:uid/:aid", async (req: Request, res: Response) => {
-  const aid = req.params.aid;
-  const uid = req.params.uid;
+router.post("/:sid", async (req: Request, res: Response) => {
+  const submission_id = req.params.sid;
   const code = req.body.code;
   const status = req.body.status;
-  const submission = await prisma.submission.create({
+  const submission = await prisma.submission.update({
+    where: {
+      id: submission_id,
+    },
     data: {
-      assignmentId: aid,
-      userId: uid,
       code,
       status,
       DOS: new Date(),
