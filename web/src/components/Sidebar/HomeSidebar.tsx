@@ -2,10 +2,7 @@ import { SidebarAssignment } from "./SidebarAssignment";
 import { useSidebar } from "../../contexts/SidebarContext";
 import { useEffect } from "react";
 import Sidebar from "./Sidebar";
-import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
-import { useAuth } from "../../contexts/AuthContext";
-import { Assignment, User } from "@prisma/client";
+import { Assignment } from "@prisma/client";
 
 interface HomeSidebarProps {
   assignments: Assignment[] | null;
@@ -16,18 +13,7 @@ const HomeSidebar: React.FC<HomeSidebarProps> = ({
   assignments,
   preSelectedItem,
 }) => {
-  const { currentUser } = useAuth();
   const { selectedItem, setSelectedItem } = useSidebar();
-
-  const { data: user } = useQuery({
-    queryKey: ["user", currentUser?.uid],
-    enabled: !!currentUser?.uid,
-    queryFn: () => {
-      return axios
-        .get(`http://localhost:3000/user/${currentUser?.uid}`)
-        .then((res) => res.data) as Promise<User>;
-    },
-  });
 
   useEffect(() => {
     if (preSelectedItem) {
