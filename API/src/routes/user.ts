@@ -6,27 +6,36 @@ const express = require("express"),
 
 router.get("/:id", async (req: Request, res: Response) => {
   const { id } = req.params;
-  const user = await prisma.user.findUnique({
-    where: {
-      id,
-    },
-  });
 
-  res.json(user);
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    res.json(user);
+  } catch (error) {
+    res.status(404).json({ message: "User not found" });
+  }
 });
 
 router.get("exists/:id", async (req: Request, res: Response) => {
   const { id } = req.params;
 
-  const user = await prisma.user.findUnique({
-    where: {
-      id,
-    },
-  });
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        id,
+      },
+    });
 
-  const userExists = !!user;
+    const userExists = !!user;
 
-  res.json({ userExists });
+    res.json({ userExists });
+  } catch (error) {
+    res.status(404).json({ message: "User not found" });
+  }
 });
 
 router.post("/", async (req: Request, res: Response) => {

@@ -7,13 +7,17 @@ const express = require("express"),
 router.get("/:a_id", async (req: Request, res: Response) => {
   const { a_id } = req.params;
 
-  const questions = await prisma.question.findMany({
-    where: {
-      assignmentId: a_id,
-    },
-  });
+  try {
+    const questions = await prisma.question.findMany({
+      where: {
+        assignmentId: a_id,
+      },
+    });
 
-  res.json(questions);
+    res.json(questions);
+  } catch (error) {
+    res.status(404).json({ message: "Questions not found" });
+  }
 });
 
 module.exports = router;

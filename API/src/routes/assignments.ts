@@ -11,16 +11,22 @@ router.get("/", async (_req: Request, res: Response) => {
 
 router.get("/:id", async (req: Request, res: Response) => {
   const { id } = req.params;
-  const assignment = await prisma.assignment.findUnique({
-    where: {
-      id,
-    },
-  });
 
-  if (assignment) {
-    res.json(assignment);
-  } else {
-    res.status(404).json({ error: "Assignment not found" });
+  try {
+    const assignment = await prisma.assignment.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    if (assignment) {
+      res.json(assignment);
+    } else {
+      // unexiting assignment and wrong assignmentId both return 404
+      res.status(404).json({ error: "Assignment not found" });
+    }
+  } catch (error) {
+    res.status(404).json({ error: "Invalid assignment ID" });
   }
 });
 
@@ -58,43 +64,53 @@ router.post("/", async (req: Request, res: Response) => {
 
 router.get("/defaulters/:id", async (req: Request, res: Response) => {
   const { id } = req.params;
-  const assignment = await prisma.assignment.findUnique({
-    where: {
-      id,
-    },
-    include: {
-      submissions: true,
-    },
-  });
-  const submittedIds = assignment.submissions.map((s: any) => s.userId);
-  const allUsers = await prisma.user.findMany({
-    where: {
-      year: assignment.year,
-    },
-  });
 
-  const allUserIds = allUsers.map((u: any) => u.id);
+  try {
+    const assignment = await prisma.assignment.findUnique({
+      where: {
+        id,
+      },
+      include: {
+        submissions: true,
+      },
+    });
+    const submittedIds = assignment.submissions.map((s: any) => s.userId);
+    const allUsers = await prisma.user.findMany({
+      where: {
+        year: assignment.year,
+      },
+    });
 
-  const defaulters = allUserIds.filter(
-    (id: string) => !submittedIds.includes(id)
-  );
-  res.json(defaulters);
+    const allUserIds = allUsers.map((u: any) => u.id);
+
+    const defaulters = allUserIds.filter(
+      (id: string) => !submittedIds.includes(id)
+    );
+    res.json(defaulters);
+  } catch (error) {
+    res.status(404).json({ error: "Invalid assignment ID" });
+  }
 });
 
 router.get("/submitted/:id", async (req: Request, res: Response) => {
   const { id } = req.params;
-  const assignment = await prisma.assignment.findUnique({
-    where: {
-      id,
-    },
-    include: {
-      submissions: true,
-    },
-  });
 
-  const submittedIds = assignment.submissions.map((s: any) => s.userId);
+  try {
+    const assignment = await prisma.assignment.findUnique({
+      where: {
+        id,
+      },
+      include: {
+        submissions: true,
+      },
+    });
 
-  res.json(submittedIds);
+    const submittedIds = assignment.submissions.map((s: any) => s.userId);
+
+    res.json(submittedIds);
+  } catch (error) {
+    res.status(404).json({ error: "Invalid assignment ID" });
+  }
 });
 
 module.exports = router;

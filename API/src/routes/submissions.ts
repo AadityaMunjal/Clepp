@@ -7,6 +7,8 @@ const express = require("express"),
 router.get("/:uid/:aid", async (req: Request, res: Response) => {
   const aid = req.params.aid;
   const uid = req.params.uid;
+
+  try {
   const submission = await prisma.submission.findMany({
     where: {
       assignmentId: aid,
@@ -18,8 +20,13 @@ router.get("/:uid/:aid", async (req: Request, res: Response) => {
     res.json(submission);
     return;
   } else {
+    // unexiting submission and wrong submissionId both return 404
     res.status(404).json({ message: "Submission not found" });
     return;
+  }
+
+  } catch (error) {
+    res.status(404).json({ message: "Invalid userId" });
   }
 });
 
