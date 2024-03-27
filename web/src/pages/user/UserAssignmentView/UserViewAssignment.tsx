@@ -1,33 +1,17 @@
 import { useParams } from "react-router-dom";
-import HomeSidebar from "../../components/Sidebar/HomeSidebar";
+import HomeSidebar from "../../../components/Sidebar/HomeSidebar";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { useAuth } from "../../contexts/AuthContext";
+import { useAuth } from "../../../contexts/AuthContext";
 import {
   Assignment,
   Question as PrismaQuestion,
   Submission,
   User,
 } from "@prisma/client";
-
-interface SubmitViewQuestionProps {
-  prompt: string;
-  count: number;
-}
-
-const SubmitViewQuestion: React.FC<SubmitViewQuestionProps> = ({
-  prompt,
-  count,
-}) => {
-  return (
-    <div className="bg-zinc-700 w-4/6 p-4 mb-8 rounded-md">
-      <h2>
-        Q{count}: {prompt}
-      </h2>
-    </div>
-  );
-};
+import SubmitView from "./SubmitView";
+import CheckView from "./CheckView";
 
 const isCodeValidForCheckView = (c: string, len: number) => {
   if (!c) return false;
@@ -60,6 +44,7 @@ const UserViewAssignment: React.FC = () => {
   const [validCode, setValidCode] = useState<boolean>(false);
   const [unsavedChanges, setUnsavedChanges] = useState<boolean>(false);
   const [checkViewCode, setCheckViewCode] = useState<string[]>([]);
+  const [checkViewQuestions, setCheckViewQuestions] = useState<string[]>([]);
 
   const { id: assignmentId } = useParams();
   const { currentUser } = useAuth();
@@ -201,10 +186,6 @@ const UserViewAssignment: React.FC = () => {
     setUnsavedChanges(code !== staticSubmission);
   }, [code]);
 
-  useEffect(() => {
-    console.log(checkViewCode);
-  }, [checkViewCode]);
-
   const validateCodeFormat = (c: string, _q_no: number) => {
     return setValidCode(true);
     const l = c.split(`\n`);
@@ -224,70 +205,6 @@ const UserViewAssignment: React.FC = () => {
     );
     submitSubmissionMutation.mutate();
     setView("check");
-  };
-
-  const SubmitView = () => {
-    return (
-      <div>
-        <div>
-          {questionsIsSuccess && (
-            <div className="">
-              {fetchedQuestions.map((q: any, idx: number) => {
-                return (
-                  <SubmitViewQuestion
-                    prompt={q.prompt}
-                    count={idx + 1}
-                    key={idx}
-                  />
-                );
-              })}
-            </div>
-          )}
-        </div>
-        <form onSubmit={handleSubmit}>
-          {validCode ? (
-            <div className="text-green-500">Code is valid</div>
-          ) : (
-            <div className="text-red-500">Code is invalid</div>
-          )}
-          <div className="">
-            <textarea
-              className="outline-none p-2 w-4/6 rounded-md text-black h-96 text-sm"
-              onChange={(e) => setCode(e.target.value)}
-              value={code}
-              id="code"
-            />
-          </div>
-          {unsavedChanges && <div>Unsaved changes</div>}
-          <button
-            className="bg-blue-600 text-white px-5 py-3 mt-4 rounded-lg"
-            disabled={!validCode}
-            type="submit"
-          >
-            {unsavedChanges ? "Save & Submit" : "Submit"}
-          </button>
-        </form>
-      </div>
-    );
-  };
-
-  const CheckView = () => {
-    return (
-      <div>
-        <div>Check View</div>
-        <div>
-          {checkViewCode.map((c, idx) => {
-            return (
-              <div key={idx} className="bg-zinc-700 w-4/6 p-4 mb-8 rounded-md">
-                <h2>
-                  Q{idx + 1}: {c}
-                </h2>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    );
   };
 
   return (
@@ -313,7 +230,24 @@ const UserViewAssignment: React.FC = () => {
             </div>
           )}
           {assignmentsIsSuccess &&
-            (view === "submit" ? <SubmitView /> : <CheckView />)}
+            (view === "submit" ? (
+              <SubmitView
+                code={code}
+                fetchedQuestions={fetchedQuestions}
+                handleSubmit={handleSubmit}
+                questionsIsSuccess={questionsIsSuccess}
+                setCode={setCode}
+                unsavedChanges={unsavedChanges}
+                validCode={validCode}
+              />
+            ) : (
+              <CheckView
+                checkViewCode={checkViewCode}
+                checkViewQuestions={
+                  fetchedQuestions?.map((q) => q.prompt) || []
+                }
+              />
+            ))}
         </div>
       </div>
     </>

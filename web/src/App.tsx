@@ -14,7 +14,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import "./App.css";
 import { SidebarProvider } from "./contexts/SidebarContext";
 import AdminViewAssignment from "./pages/admin/AdminViewAssignment";
-import UserViewAssignment from "./pages/user/UserViewAssignment";
+import UserViewAssignment from "./pages/user/UserAssignmentView/UserViewAssignment";
 
 const queryClient = new QueryClient({
   defaultOptions: {
