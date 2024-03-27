@@ -44,7 +44,6 @@ const UserViewAssignment: React.FC = () => {
   const [validCode, setValidCode] = useState<boolean>(false);
   const [unsavedChanges, setUnsavedChanges] = useState<boolean>(false);
   const [checkViewCode, setCheckViewCode] = useState<string[]>([]);
-  const [checkViewQuestions, setCheckViewQuestions] = useState<string[]>([]);
 
   const { id: assignmentId } = useParams();
   const { currentUser } = useAuth();
@@ -90,7 +89,6 @@ const UserViewAssignment: React.FC = () => {
 
   const {
     data: fetchedSubmission,
-    isSuccess: submissionIsSuccess,
     fetchStatus: submissionFetchStatus,
     error: submissionError,
   } = useQuery({
