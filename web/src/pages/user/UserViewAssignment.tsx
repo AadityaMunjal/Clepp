@@ -29,12 +29,21 @@ const SubmitViewQuestion: React.FC<SubmitViewQuestionProps> = ({
   );
 };
 
+const isCodeValidForCheckView = (c: string, len: number) => {
+  if (!c) return false;
+  for (let i = 0; i < len - 1; i++) {
+    if (!c.includes(`#Q${i + 1}`) || !c.includes(`#Q${i + 2}`)) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
 const convertCodeToCheckView = (c: string, len: number) => {
-  if (!c) return [];
   const l: string[] = [];
   for (let i = 0; i < len; i++) {
     const currQuesCode = c.split(`#Q${i + 1}`)[1].split(`#Q${i + 2}`)[0];
-    console.log(currQuesCode);
     l.push(currQuesCode);
   }
 
@@ -45,11 +54,8 @@ const UserViewAssignment: React.FC = () => {
   const queryClient = useQueryClient();
 
   // reset at assignmentId change
-  const [view, setView] = useState<"submit" | "check">("submit");
+  const [view, setView] = useState<"submit" | "check">("check");
   const [assignment, setAssignment] = useState<Assignment | null>(null);
-  const [currentSubmission, setCurrentSubmission] = useState<Submission | null>(
-    null
-  );
   const [code, setCode] = useState<string>("");
   const [validCode, setValidCode] = useState<boolean>(false);
   const [unsavedChanges, setUnsavedChanges] = useState<boolean>(false);
@@ -112,12 +118,31 @@ const UserViewAssignment: React.FC = () => {
           `http://localhost:3000/submissions/${currentUser?.uid}/${assignmentId}`
         )
         .then((res) => {
-          const s = res.data[0] as Submission;
-          setCurrentSubmission(s);
-          return s;
+          return res.data[0] as Submission;
         });
     },
   });
+
+  useEffect(() => {
+    if (!fetchedSubmission?.code) return;
+    if (
+      isCodeValidForCheckView(
+        fetchedSubmission?.code!,
+        fetchedQuestions?.length || 0
+      )
+    ) {
+      setView("check");
+      setCheckViewCode(
+        convertCodeToCheckView(
+          fetchedSubmission?.code,
+          fetchedQuestions?.length ?? 0
+        )
+      );
+    } else {
+      setView("submit");
+      setCheckViewCode([]);
+    }
+  }, [fetchedSubmission?.code, assignmentId]);
 
   const staticSubmission = fetchedSubmission?.code || "";
 
@@ -153,7 +178,7 @@ const UserViewAssignment: React.FC = () => {
       return axios
         .post(`http://localhost:3000/submissions/${fetchedSubmission?.id}`, {
           code,
-          status: currentSubmission?.status,
+          status: fetchedSubmission?.status,
         })
         .then((res) => res.data as Submission);
     },
@@ -167,18 +192,10 @@ const UserViewAssignment: React.FC = () => {
     );
     console.log("fetchedSubmission", fetchedSubmission);
     setCode(fetchedSubmission?.code || "");
-    // setCheckViewCode(
-    //   convertCodeToCheckView(
-    //     fetchedSubmission?.code!,
-    //     fetchedQuestions?.length || 0
-    //   )
-    // );
-    console.log(currentSubmission);
-  }, [assignmentId, submissionIsSuccess]);
+  }, [assignmentId]);
 
   // code validation
   useEffect(() => {
-    console.log(code);
     if (!code || !fetchedQuestions) return;
     validateCodeFormat(code, fetchedQuestions.length);
     setUnsavedChanges(code !== staticSubmission);
