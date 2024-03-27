@@ -241,9 +241,9 @@ const UserViewAssignment: React.FC = () => {
             ) : (
               <CheckView
                 checkViewCode={checkViewCode}
-                checkViewQuestions={
-                  fetchedQuestions?.map((q) => q.prompt) || []
-                }
+                checkViewQuestions={fetchedQuestions || []}
+                check={false}
+                _status={fetchedSubmission?.status.split(" ") || ([] as any)}
               />
             ))}
         </div>
