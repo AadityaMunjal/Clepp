@@ -1,4 +1,4 @@
-import { Search } from "react-iconly";
+import { CiSearch as Search } from "react-icons/ci";
 import { useAuth } from "../../contexts/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
@@ -37,7 +37,7 @@ const Sidebar: React.FC<SideBarProps> = ({ children }) => {
               className="outline-none bg-zinc-900 placeholder-current "
               placeholder="Search"
             />
-            <Search primaryColor="#3f3f46" />
+            <Search color="#3f3f46" size={28} />
           </div>
         </div>
         <div>{children}</div>

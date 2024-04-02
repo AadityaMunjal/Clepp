@@ -1,5 +1,8 @@
 import { Question } from "@prisma/client";
 import { useEffect, useState } from "react";
+import { SlOptions as Loading } from "react-icons/sl";
+import { IoCheckmarkDone as Check } from "react-icons/io5";
+import { VscError as Failed } from "react-icons/vsc";
 
 enum Status {
   UNRUN = "UNRUN",
@@ -47,7 +50,7 @@ const CheckView: React.FC<CheckViewProps> = ({
         newStatus[i] = Status.RUNNING;
         return newStatus;
       });
-      checkQuestion(checkViewCode[i], checkViewQuestions[i].id).then(
+      await checkQuestion(checkViewCode[i], checkViewQuestions[i].id).then(
         (data: { checks: boolean[]; exec_time: number }) => {
           console.log(data);
           setStatus((prev) => {
@@ -68,6 +71,7 @@ const CheckView: React.FC<CheckViewProps> = ({
       triggerChecking();
     }
   }, [checking]);
+
   return (
     <div>
       <div>Check View</div>
@@ -77,14 +81,37 @@ const CheckView: React.FC<CheckViewProps> = ({
       <div>
         {checkViewCode.map((c, idx) => {
           return (
-            <div key={idx} className="bg-zinc-700 w-4/6 p-4 mb-8 rounded-md">
-              <h2>
-                Q{idx + 1}: {checkViewQuestions[idx].prompt}
-              </h2>
-              <div>{status[idx] === Status.RUNNING && "EXECUTING"}</div>
-              <div>{status[idx] === Status.SUCCESSFUL && "CORRECT!"}</div>
-              <div>{status[idx] === Status.FAILED && "FAILED :("}</div>
-              <div>{c}</div>
+            <div
+              key={idx}
+              className={`bg-zinc-700 w-4/6 p-4 mb-8 rounded-md ring-2 ${
+                status[idx] === Status.UNRUN && "ring-zinc-600"
+              }
+              ${status[idx] === Status.RUNNING && "ring-yellow-500"}
+              ${status[idx] === Status.SUCCESSFUL && "ring-green-500"}
+              ${status[idx] === Status.FAILED && "ring-red-500"}
+              `}
+            >
+              <div className="flex justify-between mb-2">
+                <h2>
+                  Q{idx + 1}: {checkViewQuestions[idx].prompt}
+                </h2>
+                <div className="">
+                  {status[idx] === Status.RUNNING && (
+                    <Loading size={24} color="yellow" />
+                  )}
+                  {status[idx] === Status.SUCCESSFUL && (
+                    <Check size={24} color="#22f23a" />
+                  )}
+                  {status[idx] === Status.FAILED && (
+                    <Failed size={24} color="red" />
+                  )}
+                </div>
+              </div>
+              <textarea
+                rows={c.split("\n").length}
+                className="p-2 bg-zinc-900 rounded-md text-gray-200 text-sm"
+                defaultValue={c}
+              />
             </div>
           );
         })}
