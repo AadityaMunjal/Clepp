@@ -24,7 +24,7 @@ model Submission {
   User         User?       @relation(fields: [userId], references: [id])
   userId       String? 
   DOS          DateTime
-  code        String
+  code        String[]
   status      String[]
   Assignment   Assignment? @relation(fields: [assignmentId], references: [id])
   assignmentId String?     @db.ObjectId

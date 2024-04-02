@@ -29,6 +29,7 @@ const CheckView: React.FC<CheckViewProps> = ({
   const [checking, setChecking] = useState<boolean>(check);
   const [status, setStatus] = useState<Status[]>(_status);
   const [runIdx, setRunIdx] = useState<number>(0);
+  const [currentCode, setCurrentCode] = useState<string[]>(checkViewCode);
 
   const checkQuestion = async (code: string, q_id: string) => {
     // no caching
@@ -64,9 +65,11 @@ const CheckView: React.FC<CheckViewProps> = ({
       );
     }
 
+    setChecking(false);
     // updateStatusMutation.mutate(status);
   };
   useEffect(() => {
+    console.log("c", checkViewCode);
     if (checking) {
       triggerChecking();
     }
@@ -111,7 +114,24 @@ const CheckView: React.FC<CheckViewProps> = ({
                 rows={c.split("\n").length}
                 className="p-2 bg-zinc-900 rounded-md text-gray-200 text-sm"
                 defaultValue={c}
+                onChange={(e) => {
+                  setCurrentCode((prev) => {
+                    const newCode = [...prev];
+                    newCode[idx] = e.target.value;
+                    return newCode;
+                  });
+
+                  setStatus((prev) => {
+                    const newStatus = [...prev];
+                    newStatus[idx] = Status.UNRUN;
+                    return newStatus;
+                  });
+                }}
+                value={currentCode[idx]}
               />
+              <div className="bg-yellow-600 rounded-sm text-white">
+                {c !== currentCode[idx] && "Code changed!"}
+              </div>
             </div>
           );
         })}

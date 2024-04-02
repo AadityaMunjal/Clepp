@@ -13,37 +13,12 @@ import {
 import SubmitView from "./SubmitView";
 import CheckView from "./CheckView";
 
-const isCodeValidForCheckView = (c: string, len: number) => {
-  if (!c) return false;
-  for (let i = 0; i < len - 1; i++) {
-    if (!c.includes(`#Q${i + 1}`) || !c.includes(`#Q${i + 2}`)) {
-      return false;
-    }
-  }
-
-  return true;
-};
-
-const convertCodeToCheckView = (c: string, len: number) => {
-  const l: string[] = [];
-  for (let i = 0; i < len; i++) {
-    const currQuesCode = c.split(`#Q${i + 1}`)[1].split(`#Q${i + 2}`)[0];
-    l.push(currQuesCode);
-  }
-
-  return l;
-};
-
 const UserViewAssignment: React.FC = () => {
   const queryClient = useQueryClient();
 
   // reset at assignmentId change
-  const [view, setView] = useState<"submit" | "check">("check");
+  const [view, setView] = useState<"submit" | "check">("submit");
   const [assignment, setAssignment] = useState<Assignment | null>(null);
-  const [code, setCode] = useState<string>("");
-  const [validCode, setValidCode] = useState<boolean>(false);
-  const [unsavedChanges, setUnsavedChanges] = useState<boolean>(false);
-  const [checkViewCode, setCheckViewCode] = useState<string[]>([]);
 
   const { id: assignmentId } = useParams();
   const { currentUser } = useAuth();
@@ -74,10 +49,6 @@ const UserViewAssignment: React.FC = () => {
       },
     });
 
-  useEffect(() => {
-    if (!assignmentsIsSuccess || !code) return;
-  }, [assignmentsIsSuccess]);
-
   const { data: fetchedQuestions, isSuccess: questionsIsSuccess } = useQuery({
     queryKey: ["questions", assignmentId],
     queryFn: () => {
@@ -91,6 +62,7 @@ const UserViewAssignment: React.FC = () => {
     data: fetchedSubmission,
     fetchStatus: submissionFetchStatus,
     error: submissionError,
+    isSuccess: submissionIsSuccess,
   } = useQuery({
     queryKey: ["submission", assignmentId],
     enabled: !!currentUser?.uid,
@@ -109,21 +81,21 @@ const UserViewAssignment: React.FC = () => {
   useEffect(() => {
     if (!fetchedSubmission?.code) return;
     if (
-      isCodeValidForCheckView(
-        fetchedSubmission?.code!,
-        fetchedQuestions?.length || 0
-      )
+      // isCodeValidForCheckView(
+      // fetchedSubmission?.code!.toString(),
+      // fetchedQuestions?.length || 0
+      true
+      // )
     ) {
-      setView("check");
-      setCheckViewCode(
-        convertCodeToCheckView(
-          fetchedSubmission?.code,
-          fetchedQuestions?.length ?? 0
-        )
-      );
+      // setView("check");
+      // setCheckViewCode(
+      //   convertCodeToCheckView(
+      //     fetchedSubmission?.code,
+      //     fetchedQuestions?.length ?? 0
+      //   )
+      // );
     } else {
       setView("submit");
-      setCheckViewCode([]);
     }
   }, [fetchedSubmission?.code, assignmentId]);
 
@@ -147,25 +119,25 @@ const UserViewAssignment: React.FC = () => {
   });
 
   // create initial submission if not found
-  useEffect(() => {
-    if (submissionFetchStatus !== "idle") return;
-    const err = submissionError as any;
-    if (!err?.response) return;
-    if (err?.response.status === 404) {
-      initialSubmissionMutation.mutate();
-    }
-  }, [submissionError]);
+  // useEffect(() => {
+  //   if (submissionFetchStatus !== "idle") return;
+  //   const err = submissionError as any;
+  //   if (!err?.response) return;
+  //   if (err?.response.status === 404) {
+  //     initialSubmissionMutation.mutate();
+  //   }
+  // }, [submissionError]);
 
-  const submitSubmissionMutation = useMutation({
-    mutationFn: () => {
-      return axios
-        .post(`http://localhost:3000/submissions/${fetchedSubmission?.id}`, {
-          code,
-          status: fetchedSubmission?.status,
-        })
-        .then((res) => res.data as Submission);
-    },
-  });
+  // const submitSubmissionMutation = useMutation({
+  //   mutationFn: () => {
+  //     return axios
+  //       .post(`http://localhost:3000/submissions/${fetchedSubmission?.id}`, {
+  //         code: convertCodeToCheckView(code, fetchedQuestions?.length || 0),
+  //         status: fetchedSubmission?.status,
+  //       })
+  //       .then((res) => res.data as Submission);
+  //   },
+  // });
 
   // change assignment and code at assignmentId change
   useEffect(() => {
@@ -174,34 +146,29 @@ const UserViewAssignment: React.FC = () => {
       fetchedAssignments?.find((a) => a.id === assignmentId) || null
     );
     console.log("fetchedSubmission", fetchedSubmission);
-    setCode(fetchedSubmission?.code || "");
+    // setCode(fetchedSubmission?.code || "");
   }, [assignmentId]);
 
-  // code validation
   useEffect(() => {
-    if (!code || !fetchedQuestions) return;
-    validateCodeFormat(code, fetchedQuestions.length);
-    setUnsavedChanges(code !== staticSubmission);
-  }, [code]);
+    if (!submissionIsSuccess || !questionsIsSuccess) return;
 
-  const validateCodeFormat = (c: string, _q_no: number) => {
-    return setValidCode(true);
-    const l = c.split(`\n`);
-    l.map((line, idx: number) => {
-      const st_with = `#Q${idx + 1}`;
-      console.log(st_with);
-      if (!line.startsWith(st_with)) {
-        setValidCode(false);
-        return;
-      }
-    });
-  };
+    if (fetchedSubmission?.code.length === fetchedQuestions?.length) {
+      setView("check");
+    } else {
+      setView("submit");
+    }
+  }, [submissionIsSuccess, questionsIsSuccess, assignmentId]);
+
+  // code validation
+  // TODO: rewrite this in submitview
+  // useEffect(() => {
+  //   if (!code || !fetchedQuestions) return;
+  //   validateCodeFormat(code, fetchedQuestions.length);
+  //   setUnsavedChanges(code !== staticSubmission);
+  // }, [code]);
 
   const handleSubmit = () => {
-    setCheckViewCode(
-      convertCodeToCheckView(code, fetchedQuestions?.length ?? 0)
-    );
-    submitSubmissionMutation.mutate();
+    // submitSubmissionMutation.mutate();
     setView("check");
   };
 
@@ -230,17 +197,13 @@ const UserViewAssignment: React.FC = () => {
           {assignmentsIsSuccess &&
             (view === "submit" ? (
               <SubmitView
-                code={code}
                 fetchedQuestions={fetchedQuestions}
                 handleSubmit={handleSubmit}
                 questionsIsSuccess={questionsIsSuccess}
-                setCode={setCode}
-                unsavedChanges={unsavedChanges}
-                validCode={validCode}
               />
             ) : (
               <CheckView
-                checkViewCode={checkViewCode}
+                checkViewCode={fetchedSubmission?.code || []}
                 checkViewQuestions={fetchedQuestions || []}
                 check={false}
                 _status={fetchedSubmission?.status || ([] as any)}

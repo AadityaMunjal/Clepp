@@ -1,5 +1,4 @@
 import { Question } from "@prisma/client";
-import { Dispatch, SetStateAction } from "react";
 
 interface SubmitViewQuestionProps {
   prompt: string;
@@ -23,21 +22,17 @@ interface SubmitViewProps {
   questionsIsSuccess: boolean;
   fetchedQuestions?: Question[];
   handleSubmit: (e: any) => void;
-  validCode: boolean;
-  code: string;
-  setCode: Dispatch<SetStateAction<string>>;
-  unsavedChanges: boolean;
 }
 
 const SubmitView: React.FC<SubmitViewProps> = ({
   questionsIsSuccess,
   fetchedQuestions,
   handleSubmit,
-  validCode,
-  code,
-  setCode,
-  unsavedChanges,
 }) => {
+  const code = "";
+  const setCode = (_: any) => {};
+  const validCode = true;
+  const unsavedChanges = false;
   return (
     <div>
       <div>
