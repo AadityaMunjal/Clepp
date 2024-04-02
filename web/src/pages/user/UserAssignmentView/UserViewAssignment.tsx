@@ -136,7 +136,7 @@ const UserViewAssignment: React.FC = () => {
           `http://localhost:3000/submissions/${currentUser?.uid}/${assignmentId}`,
           {
             code: "",
-            status: "UNRUN ".repeat(fetchedQuestions?.length || 0),
+            status: Array(fetchedQuestions?.length).fill("UNRUN"),
           }
         )
         .then((res) => res.data as Submission);
@@ -243,7 +243,8 @@ const UserViewAssignment: React.FC = () => {
                 checkViewCode={checkViewCode}
                 checkViewQuestions={fetchedQuestions || []}
                 check={false}
-                _status={fetchedSubmission?.status.split(" ") || ([] as any)}
+                _status={fetchedSubmission?.status || ([] as any)}
+                submissionId={fetchedSubmission?.id || ""}
               />
             ))}
         </div>

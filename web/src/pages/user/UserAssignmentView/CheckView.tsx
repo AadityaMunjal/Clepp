@@ -13,6 +13,7 @@ interface CheckViewProps {
   checkViewQuestions: Question[];
   check: boolean;
   _status: Status[];
+  submissionId: string;
 }
 
 const CheckView: React.FC<CheckViewProps> = ({
@@ -20,6 +21,7 @@ const CheckView: React.FC<CheckViewProps> = ({
   checkViewQuestions,
   check,
   _status,
+  submissionId,
 }) => {
   const [checking, setChecking] = useState<boolean>(check);
   const [status, setStatus] = useState<Status[]>(_status);
@@ -35,17 +37,31 @@ const CheckView: React.FC<CheckViewProps> = ({
       },
     });
     const data = await res.json();
-    // console.log(data);
     return data;
   };
 
   const triggerChecking = async () => {
     for (let i = 0; i < checkViewQuestions.length; i++) {
-      const q = checkViewQuestions[i];
-      checkQuestion(checkViewCode[i], checkViewQuestions[i].id).then((data) => {
-        console.log(data);
+      setStatus((prev) => {
+        const newStatus = [...prev];
+        newStatus[i] = Status.RUNNING;
+        return newStatus;
       });
+      checkQuestion(checkViewCode[i], checkViewQuestions[i].id).then(
+        (data: { checks: boolean[]; exec_time: number }) => {
+          console.log(data);
+          setStatus((prev) => {
+            const newStatus = [...prev];
+            newStatus[i] = data.checks.includes(false)
+              ? Status.FAILED
+              : Status.SUCCESSFUL;
+            return newStatus;
+          });
+        }
+      );
     }
+
+    // updateStatusMutation.mutate(status);
   };
   useEffect(() => {
     if (checking) {
@@ -65,6 +81,9 @@ const CheckView: React.FC<CheckViewProps> = ({
               <h2>
                 Q{idx + 1}: {checkViewQuestions[idx].prompt}
               </h2>
+              <div>{status[idx] === Status.RUNNING && "EXECUTING"}</div>
+              <div>{status[idx] === Status.SUCCESSFUL && "CORRECT!"}</div>
+              <div>{status[idx] === Status.FAILED && "FAILED :("}</div>
               <div>{c}</div>
             </div>
           );
