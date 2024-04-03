@@ -56,7 +56,7 @@ const CheckView: React.FC<CheckViewProps> = ({
           console.log(data);
           setStatus((prev) => {
             const newStatus = [...prev];
-            newStatus[i] = data.checks.includes(false)
+            newStatus[i] = data.checks?.includes(false)
               ? Status.FAILED
               : Status.SUCCESSFUL;
             return newStatus;
