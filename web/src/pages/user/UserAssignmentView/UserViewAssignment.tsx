@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import HomeSidebar from "../../../components/Sidebar/HomeSidebar";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useAuth } from "../../../contexts/AuthContext";
@@ -14,11 +14,11 @@ import SubmitView from "./SubmitView";
 import CheckView from "./CheckView";
 
 const UserViewAssignment: React.FC = () => {
-  const queryClient = useQueryClient();
-
   // reset at assignmentId change
   const [view, setView] = useState<"submit" | "check">("submit");
   const [assignment, setAssignment] = useState<Assignment | null>(null);
+  const [questions, setQuestions] = useState<PrismaQuestion[]>([]);
+  const [submission, setSubmission] = useState<Submission | null>(null);
 
   const { id: assignmentId } = useParams();
   const { currentUser } = useAuth();
@@ -65,7 +65,7 @@ const UserViewAssignment: React.FC = () => {
     isSuccess: submissionIsSuccess,
   } = useQuery({
     queryKey: ["submission", assignmentId],
-    enabled: !!currentUser?.uid,
+    enabled: !!currentUser?.uid && !!assignmentId,
     retry: 0,
     queryFn: () => {
       return axios
@@ -78,76 +78,23 @@ const UserViewAssignment: React.FC = () => {
     },
   });
 
-  useEffect(() => {
-    if (!fetchedSubmission?.code) return;
-    if (
-      // isCodeValidForCheckView(
-      // fetchedSubmission?.code!.toString(),
-      // fetchedQuestions?.length || 0
-      true
-      // )
-    ) {
-      // setView("check");
-      // setCheckViewCode(
-      //   convertCodeToCheckView(
-      //     fetchedSubmission?.code,
-      //     fetchedQuestions?.length ?? 0
-      //   )
-      // );
-    } else {
-      setView("submit");
-    }
-  }, [fetchedSubmission?.code, assignmentId]);
-
-  const staticSubmission = fetchedSubmission?.code || "";
-
-  const initialSubmissionMutation = useMutation({
-    mutationFn: () => {
-      return axios
-        .post(
-          `http://localhost:3000/submissions/${currentUser?.uid}/${assignmentId}`,
-          {
-            code: "",
-            status: Array(fetchedQuestions?.length).fill("UNRUN"),
-          }
-        )
-        .then((res) => res.data as Submission);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["submission", assignmentId] });
-    },
-  });
-
-  // create initial submission if not found
-  // useEffect(() => {
-  //   if (submissionFetchStatus !== "idle") return;
-  //   const err = submissionError as any;
-  //   if (!err?.response) return;
-  //   if (err?.response.status === 404) {
-  //     initialSubmissionMutation.mutate();
-  //   }
-  // }, [submissionError]);
-
-  // const submitSubmissionMutation = useMutation({
-  //   mutationFn: () => {
-  //     return axios
-  //       .post(`http://localhost:3000/submissions/${fetchedSubmission?.id}`, {
-  //         code: convertCodeToCheckView(code, fetchedQuestions?.length || 0),
-  //         status: fetchedSubmission?.status,
-  //       })
-  //       .then((res) => res.data as Submission);
-  //   },
-  // });
-
   // change assignment and code at assignmentId change
   useEffect(() => {
-    if (!fetchedSubmission?.code) return;
+    console.log(assignmentId);
     setAssignment(
       fetchedAssignments?.find((a) => a.id === assignmentId) || null
     );
-    console.log("fetchedSubmission", fetchedSubmission);
-    // setCode(fetchedSubmission?.code || "");
+    setQuestions(fetchedQuestions || []);
+    setSubmission(fetchedSubmission || null);
   }, [assignmentId]);
+
+  useEffect(() => {
+    setAssignment(
+      fetchedAssignments?.find((a) => a.id === assignmentId) || null
+    );
+    setQuestions(fetchedQuestions || []);
+    setSubmission(fetchedSubmission || null);
+  }, [assignmentsIsSuccess, questionsIsSuccess, submissionIsSuccess]);
 
   useEffect(() => {
     if (!submissionIsSuccess || !questionsIsSuccess) return;
@@ -158,19 +105,6 @@ const UserViewAssignment: React.FC = () => {
       setView("submit");
     }
   }, [submissionIsSuccess, questionsIsSuccess, assignmentId]);
-
-  // code validation
-  // TODO: rewrite this in submitview
-  // useEffect(() => {
-  //   if (!code || !fetchedQuestions) return;
-  //   validateCodeFormat(code, fetchedQuestions.length);
-  //   setUnsavedChanges(code !== staticSubmission);
-  // }, [code]);
-
-  const handleSubmit = () => {
-    // submitSubmissionMutation.mutate();
-    setView("check");
-  };
 
   return (
     <>
@@ -197,9 +131,12 @@ const UserViewAssignment: React.FC = () => {
           {assignmentsIsSuccess &&
             (view === "submit" ? (
               <SubmitView
-                fetchedQuestions={fetchedQuestions}
-                handleSubmit={handleSubmit}
+                assignmentId={assignmentId}
+                fetchedQuestions={questions}
+                fetchedSubmission={submission}
                 questionsIsSuccess={questionsIsSuccess}
+                submissionError={submissionError}
+                submissionFetchStatus={submissionFetchStatus}
               />
             ) : (
               <CheckView
