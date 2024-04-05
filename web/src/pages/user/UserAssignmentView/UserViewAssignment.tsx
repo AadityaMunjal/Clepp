@@ -17,8 +17,6 @@ const UserViewAssignment: React.FC = () => {
   // reset at assignmentId change
   const [view, setView] = useState<"submit" | "check">("submit");
   const [assignment, setAssignment] = useState<Assignment | null>(null);
-  const [questions, setQuestions] = useState<PrismaQuestion[]>([]);
-  const [submission, setSubmission] = useState<Submission | null>(null);
 
   const { id: assignmentId } = useParams();
   const { currentUser } = useAuth();
@@ -66,7 +64,6 @@ const UserViewAssignment: React.FC = () => {
   } = useQuery({
     queryKey: ["submission", assignmentId],
     enabled: !!currentUser?.uid && !!assignmentId,
-    retry: 0,
     queryFn: () => {
       return axios
         .get(
@@ -84,17 +81,7 @@ const UserViewAssignment: React.FC = () => {
     setAssignment(
       fetchedAssignments?.find((a) => a.id === assignmentId) || null
     );
-    setQuestions(fetchedQuestions || []);
-    setSubmission(fetchedSubmission || null);
-  }, [assignmentId]);
-
-  useEffect(() => {
-    setAssignment(
-      fetchedAssignments?.find((a) => a.id === assignmentId) || null
-    );
-    setQuestions(fetchedQuestions || []);
-    setSubmission(fetchedSubmission || null);
-  }, [assignmentsIsSuccess, questionsIsSuccess, submissionIsSuccess]);
+  }, [assignmentsIsSuccess, assignmentId]);
 
   useEffect(() => {
     if (!submissionIsSuccess || !questionsIsSuccess) return;
@@ -132,8 +119,8 @@ const UserViewAssignment: React.FC = () => {
             (view === "submit" ? (
               <SubmitView
                 assignmentId={assignmentId}
-                fetchedQuestions={questions}
-                fetchedSubmission={submission}
+                fetchedQuestions={fetchedQuestions || []}
+                fetchedSubmission={fetchedSubmission || null}
                 questionsIsSuccess={questionsIsSuccess}
                 submissionError={submissionError}
                 submissionFetchStatus={submissionFetchStatus}
@@ -144,7 +131,6 @@ const UserViewAssignment: React.FC = () => {
                 checkViewQuestions={fetchedQuestions || []}
                 check={false}
                 _status={fetchedSubmission?.status || ([] as any)}
-                submissionId={fetchedSubmission?.id || ""}
               />
             ))}
         </div>

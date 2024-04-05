@@ -25,10 +25,7 @@ const SubmitViewQuestion: React.FC<SubmitViewQuestionProps> = ({
 const isCodeValidForCheckView = (c: string, len: number) => {
   if (!c) return false;
   for (let i = 0; i < len - 1; i++) {
-    if (
-      !c.toUpperCase().includes(`#Q${i + 1}`) ||
-      !c.toUpperCase().includes(`#Q${i + 2}`)
-    ) {
+    if (!c.includes(`#Q${i + 1}`) || !c.includes(`#Q${i + 2}`)) {
       return false;
     }
   }
@@ -53,6 +50,15 @@ const convertCodeToArray = (c: string): string[] => {
   return result;
 };
 
+const convertArrayToCode = (a: string[]): string => {
+  let s = "";
+  a.map((c) => {
+    s += c + "\n\n";
+  });
+
+  return s;
+};
+
 interface SubmitViewProps {
   assignmentId: string | undefined;
   fetchedSubmission: Submission | null;
@@ -71,15 +77,21 @@ const SubmitView: React.FC<SubmitViewProps> = ({
   questionsIsSuccess,
 }) => {
   const [currentCode, setCurrentCode] = useState<string>(
-    fetchedSubmission?.code?.toString() || ""
+    convertArrayToCode(fetchedSubmission?.code || []) || ""
   );
+
+  useEffect(() => {
+    setCurrentCode(convertArrayToCode(fetchedSubmission?.code || []) || "");
+  }, [fetchedSubmission?.code]);
+
   const [unsavedChanges, setUnsavedChanges] = useState<boolean>(false);
   const [validCode, setValidCode] = useState<boolean>(false);
 
   const queryClient = useQueryClient();
   const { currentUser } = useAuth();
 
-  const staticSubmission = fetchedSubmission?.code || "";
+  const staticSubmission =
+    convertArrayToCode(fetchedSubmission?.code || []) || "";
 
   const initialSubmissionMutation = useMutation({
     mutationFn: () => {
@@ -121,9 +133,10 @@ const SubmitView: React.FC<SubmitViewProps> = ({
 
   // code validation
   useEffect(() => {
-    setUnsavedChanges(currentCode !== staticSubmission.toString());
+    setUnsavedChanges(currentCode !== staticSubmission);
     if (!currentCode || !fetchedQuestions) return;
     setValidCode(isCodeValidForCheckView(currentCode, fetchedQuestions.length));
+    console.log(convertCodeToArray(currentCode));
   }, [currentCode]);
 
   return (
@@ -144,7 +157,11 @@ const SubmitView: React.FC<SubmitViewProps> = ({
         )}
       </div>
       <form
-        onSubmit={() => {
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (validCode && !unsavedChanges) {
+            return;
+          }
           submitSubmissionMutation.mutate();
         }}
       >
@@ -167,7 +184,9 @@ const SubmitView: React.FC<SubmitViewProps> = ({
           disabled={!validCode}
           type="submit"
         >
-          {unsavedChanges ? "Save & Submit" : "Submit"}
+          {validCode && unsavedChanges && "Save & Submit"}
+          {validCode && !unsavedChanges && "Submit"}
+          {!validCode && "Save"}
         </button>
       </form>
     </div>

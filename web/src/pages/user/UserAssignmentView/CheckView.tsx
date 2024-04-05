@@ -16,7 +16,6 @@ interface CheckViewProps {
   checkViewQuestions: Question[];
   check: boolean;
   _status: Status[];
-  submissionId: string;
 }
 
 const CheckView: React.FC<CheckViewProps> = ({
@@ -24,12 +23,14 @@ const CheckView: React.FC<CheckViewProps> = ({
   checkViewQuestions,
   check,
   _status,
-  submissionId,
 }) => {
   const [checking, setChecking] = useState<boolean>(check);
   const [status, setStatus] = useState<Status[]>(_status);
-  const [runIdx, setRunIdx] = useState<number>(0);
   const [currentCode, setCurrentCode] = useState<string[]>(checkViewCode);
+
+  useEffect(() => {
+    setCurrentCode(checkViewCode);
+  }, [checkViewCode]);
 
   const checkQuestion = async (code: string, q_id: string) => {
     // no caching
@@ -69,7 +70,6 @@ const CheckView: React.FC<CheckViewProps> = ({
     // updateStatusMutation.mutate(status);
   };
   useEffect(() => {
-    console.log("c", checkViewCode);
     if (checking) {
       triggerChecking();
     }
