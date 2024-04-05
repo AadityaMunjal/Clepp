@@ -81,38 +81,36 @@ const CheckView: React.FC<CheckViewProps> = ({
       <button onClick={() => setChecking(true)} disabled={false}>
         Check
       </button>
-      <div>
+      <>
         {checkViewCode.map((c, idx) => {
           return (
-            <div
-              key={idx}
-              className={`bg-zinc-700 w-4/6 p-4 mb-8 rounded-md ring-2 ${
-                status[idx] === Status.UNRUN && "ring-zinc-600"
-              }
-              ${status[idx] === Status.RUNNING && "ring-yellow-500"}
-              ${status[idx] === Status.SUCCESSFUL && "ring-green-500"}
-              ${status[idx] === Status.FAILED && "ring-red-500"}
-              `}
-            >
-              <div className="flex justify-between mb-2">
+            <div key={idx} className="w-3/5 p-4 mb-3">
+              <div className="flex justify-between">
                 <h2>
                   Q{idx + 1}: {checkViewQuestions[idx].prompt}
                 </h2>
-                <div className="">
-                  {status[idx] === Status.RUNNING && (
-                    <Loading size={24} color="yellow" />
-                  )}
-                  {status[idx] === Status.SUCCESSFUL && (
-                    <Check size={24} color="#22f23a" />
-                  )}
-                  {status[idx] === Status.FAILED && (
-                    <Failed size={24} color="red" />
-                  )}
+                <div className="mb-2">
+                  <div className="">
+                    {status[idx] === Status.RUNNING && (
+                      <Loading size={24} color="yellow" />
+                    )}
+                    {status[idx] === Status.SUCCESSFUL && (
+                      <Check size={24} color="#22f23a" />
+                    )}
+                    {status[idx] === Status.FAILED && (
+                      <Failed size={24} color="red" />
+                    )}
+                  </div>
                 </div>
               </div>
               <textarea
                 rows={c.split("\n").length}
-                className="p-2 bg-zinc-900 rounded-md text-gray-200 text-sm"
+                className={`mt-1 p-4 bg-zinc-900 rounded-2xl text-gray-200 text-sm ring-2 w-full outline-none
+                ${status[idx] === Status.UNRUN && "ring-zinc-600"}
+                ${status[idx] === Status.RUNNING && "ring-yellow-500"}
+                ${status[idx] === Status.SUCCESSFUL && "ring-green-500"}
+                ${status[idx] === Status.FAILED && "ring-red-500"}
+                `}
                 defaultValue={c}
                 onChange={(e) => {
                   setCurrentCode((prev) => {
@@ -132,10 +130,11 @@ const CheckView: React.FC<CheckViewProps> = ({
               <div className="bg-yellow-600 rounded-sm text-white">
                 {c !== currentCode[idx] && "Code changed!"}
               </div>
+              <hr className="mt-3 border-zinc-700" />
             </div>
           );
         })}
-      </div>
+      </>
     </div>
   );
 };
