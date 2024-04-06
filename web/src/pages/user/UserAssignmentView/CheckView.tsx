@@ -5,6 +5,7 @@ import { IoCheckmarkDone as Check } from "react-icons/io5";
 import { VscError as Failed } from "react-icons/vsc";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
+import PDFDownload from "./PDFDownload";
 
 enum Status {
   UNRUN = "UNRUN",
@@ -34,6 +35,11 @@ const CheckView: React.FC<CheckViewProps> = ({
 }) => {
   const [checking, setChecking] = useState<boolean>(check);
   const [status, setStatus] = useState<Status[]>(_status);
+  const [isComplete, setIsComplete] = useState<boolean>(false);
+
+  useEffect(() => {
+    setIsComplete(status.every((s) => s === Status.SUCCESSFUL));
+  }, [status]);
 
   useEffect(() => {
     setStatus(_status);
@@ -142,6 +148,7 @@ const CheckView: React.FC<CheckViewProps> = ({
           Download Starter Template
         </button>
       </div>
+      {isComplete && <PDFDownload fileName={fileName} />}
       <>
         {checkViewCode.map((c, idx) => {
           return (
