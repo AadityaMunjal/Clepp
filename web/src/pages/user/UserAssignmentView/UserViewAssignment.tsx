@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import HomeSidebar from "../../../components/Sidebar/HomeSidebar";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useAuth } from "../../../contexts/AuthContext";
@@ -13,37 +13,10 @@ import {
 import SubmitView from "./SubmitView";
 import CheckView from "./CheckView";
 
-const isCodeValidForCheckView = (c: string, len: number) => {
-  if (!c) return false;
-  for (let i = 0; i < len - 1; i++) {
-    if (!c.includes(`#Q${i + 1}`) || !c.includes(`#Q${i + 2}`)) {
-      return false;
-    }
-  }
-
-  return true;
-};
-
-const convertCodeToCheckView = (c: string, len: number) => {
-  const l: string[] = [];
-  for (let i = 0; i < len; i++) {
-    const currQuesCode = c.split(`#Q${i + 1}`)[1].split(`#Q${i + 2}`)[0];
-    l.push(currQuesCode);
-  }
-
-  return l;
-};
-
 const UserViewAssignment: React.FC = () => {
-  const queryClient = useQueryClient();
-
   // reset at assignmentId change
-  const [view, setView] = useState<"submit" | "check">("check");
+  const [view, setView] = useState<"submit" | "check">("submit");
   const [assignment, setAssignment] = useState<Assignment | null>(null);
-  const [code, setCode] = useState<string>("");
-  const [validCode, setValidCode] = useState<boolean>(false);
-  const [unsavedChanges, setUnsavedChanges] = useState<boolean>(false);
-  const [checkViewCode, setCheckViewCode] = useState<string[]>([]);
 
   const { id: assignmentId } = useParams();
   const { currentUser } = useAuth();
@@ -74,10 +47,6 @@ const UserViewAssignment: React.FC = () => {
       },
     });
 
-  useEffect(() => {
-    if (!assignmentsIsSuccess || !code) return;
-  }, [assignmentsIsSuccess]);
-
   const { data: fetchedQuestions, isSuccess: questionsIsSuccess } = useQuery({
     queryKey: ["questions", assignmentId],
     queryFn: () => {
@@ -91,10 +60,10 @@ const UserViewAssignment: React.FC = () => {
     data: fetchedSubmission,
     fetchStatus: submissionFetchStatus,
     error: submissionError,
+    isSuccess: submissionIsSuccess,
   } = useQuery({
     queryKey: ["submission", assignmentId],
-    enabled: !!currentUser?.uid,
-    retry: 0,
+    enabled: !!currentUser?.uid && !!assignmentId,
     queryFn: () => {
       return axios
         .get(
@@ -106,104 +75,23 @@ const UserViewAssignment: React.FC = () => {
     },
   });
 
-  useEffect(() => {
-    if (!fetchedSubmission?.code) return;
-    if (
-      isCodeValidForCheckView(
-        fetchedSubmission?.code!,
-        fetchedQuestions?.length || 0
-      )
-    ) {
-      setView("check");
-      setCheckViewCode(
-        convertCodeToCheckView(
-          fetchedSubmission?.code,
-          fetchedQuestions?.length ?? 0
-        )
-      );
-    } else {
-      setView("submit");
-      setCheckViewCode([]);
-    }
-  }, [fetchedSubmission?.code, assignmentId]);
-
-  const staticSubmission = fetchedSubmission?.code || "";
-
-  const initialSubmissionMutation = useMutation({
-    mutationFn: () => {
-      return axios
-        .post(
-          `http://localhost:3000/submissions/${currentUser?.uid}/${assignmentId}`,
-          {
-            code: "",
-            status: "UNRUN ".repeat(fetchedQuestions?.length || 0),
-          }
-        )
-        .then((res) => res.data as Submission);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["submission", assignmentId] });
-    },
-  });
-
-  // create initial submission if not found
-  useEffect(() => {
-    if (submissionFetchStatus !== "idle") return;
-    const err = submissionError as any;
-    if (!err?.response) return;
-    if (err?.response.status === 404) {
-      initialSubmissionMutation.mutate();
-    }
-  }, [submissionError]);
-
-  const submitSubmissionMutation = useMutation({
-    mutationFn: () => {
-      return axios
-        .post(`http://localhost:3000/submissions/${fetchedSubmission?.id}`, {
-          code,
-          status: fetchedSubmission?.status,
-        })
-        .then((res) => res.data as Submission);
-    },
-  });
-
   // change assignment and code at assignmentId change
   useEffect(() => {
-    if (!fetchedSubmission?.code) return;
+    console.log(assignmentId);
     setAssignment(
       fetchedAssignments?.find((a) => a.id === assignmentId) || null
     );
-    console.log("fetchedSubmission", fetchedSubmission);
-    setCode(fetchedSubmission?.code || "");
-  }, [assignmentId]);
+  }, [assignmentsIsSuccess, assignmentId]);
 
-  // code validation
   useEffect(() => {
-    if (!code || !fetchedQuestions) return;
-    validateCodeFormat(code, fetchedQuestions.length);
-    setUnsavedChanges(code !== staticSubmission);
-  }, [code]);
+    if (!submissionIsSuccess || !questionsIsSuccess) return;
 
-  const validateCodeFormat = (c: string, _q_no: number) => {
-    return setValidCode(true);
-    const l = c.split(`\n`);
-    l.map((line, idx: number) => {
-      const st_with = `#Q${idx + 1}`;
-      console.log(st_with);
-      if (!line.startsWith(st_with)) {
-        setValidCode(false);
-        return;
-      }
-    });
-  };
-
-  const handleSubmit = () => {
-    setCheckViewCode(
-      convertCodeToCheckView(code, fetchedQuestions?.length ?? 0)
-    );
-    submitSubmissionMutation.mutate();
-    setView("check");
-  };
+    if (fetchedSubmission?.code.length === fetchedQuestions?.length) {
+      setView("check");
+    } else {
+      setView("submit");
+    }
+  }, [submissionIsSuccess, questionsIsSuccess, assignmentId]);
 
   return (
     <>
@@ -230,20 +118,21 @@ const UserViewAssignment: React.FC = () => {
           {assignmentsIsSuccess &&
             (view === "submit" ? (
               <SubmitView
-                code={code}
-                fetchedQuestions={fetchedQuestions}
-                handleSubmit={handleSubmit}
+                assignmentId={assignmentId}
+                fetchedQuestions={fetchedQuestions || []}
+                fetchedSubmission={fetchedSubmission || null}
                 questionsIsSuccess={questionsIsSuccess}
-                setCode={setCode}
-                unsavedChanges={unsavedChanges}
-                validCode={validCode}
+                submissionError={submissionError}
+                submissionFetchStatus={submissionFetchStatus}
               />
             ) : (
               <CheckView
-                checkViewCode={checkViewCode}
-                checkViewQuestions={
-                  fetchedQuestions?.map((q) => q.prompt) || []
-                }
+                checkViewCode={fetchedSubmission?.code || []}
+                checkViewQuestions={fetchedQuestions || []}
+                check={false}
+                _status={fetchedSubmission?.status || ([] as any)}
+                assignmentId={assignment?.id || ""}
+                submissionId={fetchedSubmission?.id || ""}
               />
             ))}
         </div>

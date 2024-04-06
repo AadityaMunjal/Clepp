@@ -64,14 +64,14 @@ print(testcases["__outputs"])
 """
 
 
-@app.route("/execute", methods=["GET"])
+@app.route("/execute", methods=["POST"])
 @cross_origin()
 def handle_execute():
     try:
         data = request.get_json()
         code = data.get("c")
-        raw_test_cases = data.get("tc")
-        code_count = 1 if "def " in code else 2  # make this dynamic later
+        raw_test_cases = "{" + data.get("tc") + "}"
+        code_count = 1 if "def " in code else 1  # make this dynamic later
 
         if "def " not in code:
             c = (
