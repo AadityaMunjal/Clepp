@@ -131,6 +131,8 @@ const UserViewAssignment: React.FC = () => {
                 checkViewQuestions={fetchedQuestions || []}
                 check={false}
                 _status={fetchedSubmission?.status || ([] as any)}
+                assignmentId={assignment?.id || ""}
+                submissionId={fetchedSubmission?.id || ""}
               />
             ))}
         </div>

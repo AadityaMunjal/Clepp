@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { SlOptions as Loading } from "react-icons/sl";
 import { IoCheckmarkDone as Check } from "react-icons/io5";
 import { VscError as Failed } from "react-icons/vsc";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
 
 enum Status {
   UNRUN = "UNRUN",
@@ -16,6 +18,8 @@ interface CheckViewProps {
   checkViewQuestions: Question[];
   check: boolean;
   _status: Status[];
+  submissionId: string;
+  assignmentId: string;
 }
 
 const CheckView: React.FC<CheckViewProps> = ({
@@ -23,10 +27,19 @@ const CheckView: React.FC<CheckViewProps> = ({
   checkViewQuestions,
   check,
   _status,
+  submissionId,
+  assignmentId,
 }) => {
   const [checking, setChecking] = useState<boolean>(check);
   const [status, setStatus] = useState<Status[]>(_status);
+
+  useEffect(() => {
+    setStatus(_status);
+  }, [_status]);
+
   const [currentCode, setCurrentCode] = useState<string[]>(checkViewCode);
+
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     setCurrentCode(checkViewCode);
@@ -44,6 +57,24 @@ const CheckView: React.FC<CheckViewProps> = ({
     const data = await res.json();
     return data;
   };
+
+  const updateStatusMutation = useMutation({
+    mutationFn: async (status: Status[]) => {
+      const res = axios.post(
+        `http://localhost:3000/submissions/${submissionId}`,
+        {
+          status,
+        }
+      );
+      return res;
+    },
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["submission", assignmentId],
+      });
+    },
+  });
 
   const triggerChecking = async () => {
     for (let i = 0; i < checkViewQuestions.length; i++) {
@@ -66,13 +97,18 @@ const CheckView: React.FC<CheckViewProps> = ({
       );
     }
 
-    setChecking(false);
-    // updateStatusMutation.mutate(status);
+    await setChecking(false);
   };
+
   useEffect(() => {
     if (checking) {
       triggerChecking();
     }
+  }, [checking]);
+
+  useEffect(() => {
+    if (checking) return;
+    updateStatusMutation.mutate(status);
   }, [checking]);
 
   return (
@@ -87,7 +123,7 @@ const CheckView: React.FC<CheckViewProps> = ({
             <div key={idx} className="w-3/5 p-4 mb-3">
               <div className="flex justify-between">
                 <h2>
-                  Q{idx + 1}: {checkViewQuestions[idx].prompt}
+                  Q{idx + 1}: {checkViewQuestions[idx]?.prompt}
                 </h2>
                 <div className="mb-2">
                   <div className="">
