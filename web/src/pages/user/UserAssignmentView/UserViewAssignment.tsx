@@ -21,6 +21,16 @@ const UserViewAssignment: React.FC = () => {
   const { id: assignmentId } = useParams();
   const { currentUser } = useAuth();
 
+  const { data: user } = useQuery({
+    queryKey: ["user", currentUser?.uid],
+    enabled: !!currentUser?.uid,
+    queryFn: () => {
+      return axios
+        .get(`http://localhost:3000/user/${currentUser?.uid}`)
+        .then((res) => res.data) as Promise<User>;
+    },
+  });
+
   const { data: fetchedUser } = useQuery({
     queryKey: ["user", currentUser?.uid],
     enabled: !!currentUser?.uid,
@@ -133,6 +143,7 @@ const UserViewAssignment: React.FC = () => {
                 _status={fetchedSubmission?.status || ([] as any)}
                 assignmentId={assignment?.id || ""}
                 submissionId={fetchedSubmission?.id || ""}
+                fileName={`${assignment?.name} - ${user?.name}`}
               />
             ))}
         </div>

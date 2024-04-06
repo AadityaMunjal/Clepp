@@ -20,6 +20,7 @@ interface CheckViewProps {
   _status: Status[];
   submissionId: string;
   assignmentId: string;
+  fileName: string;
 }
 
 const CheckView: React.FC<CheckViewProps> = ({
@@ -29,6 +30,7 @@ const CheckView: React.FC<CheckViewProps> = ({
   _status,
   submissionId,
   assignmentId,
+  fileName,
 }) => {
   const [checking, setChecking] = useState<boolean>(check);
   const [status, setStatus] = useState<Status[]>(_status);
@@ -111,12 +113,35 @@ const CheckView: React.FC<CheckViewProps> = ({
     updateStatusMutation.mutate(status);
   }, [checking]);
 
+  const downloadStarterTemplate = () => {
+    const fileData = checkViewQuestions
+      .map((q, idx) => `#Q${idx + 1} ${q.prompt}`)
+      .join("\n\n\n\n\n");
+    const a = window.document.createElement("a");
+    a.href = window.URL.createObjectURL(
+      new Blob([fileData], { type: "octet/stream" })
+    );
+    a.download = fileName + ".py";
+
+    // Append anchor to body.
+    document.body.appendChild(a);
+    a.click();
+
+    // Remove anchor from body
+    document.body.removeChild(a);
+  };
+
   return (
     <div>
       <div>Check View</div>
       <button onClick={() => setChecking(true)} disabled={false}>
         Check
       </button>
+      <div>
+        <button onClick={downloadStarterTemplate}>
+          Download Starter Template
+        </button>
+      </div>
       <>
         {checkViewCode.map((c, idx) => {
           return (
