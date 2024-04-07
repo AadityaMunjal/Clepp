@@ -1,4 +1,4 @@
-import { usePDF, Document, Page, Text } from "@react-pdf/renderer";
+import { usePDF, Document, Page, Text, View, Font } from "@react-pdf/renderer";
 import { useAuth } from "../../../contexts/AuthContext";
 import { Assignment, Question, Submission, User } from "@prisma/client";
 import { useQuery } from "@tanstack/react-query";
@@ -6,14 +6,29 @@ import axios from "axios";
 import { useParams } from "react-router-dom";
 import { useEffect } from "react";
 
+Font.register({
+  family: "Poppins",
+  src: "http://fonts.gstatic.com/s/poppins/v1/TDTjCH39JjVycIF24TlO-Q.ttf",
+});
+
+Font.register({
+  family: "Tinos",
+  src: "http://fonts.gstatic.com/s/tinos/v9/R0GUby9C7Xd7F2g6Wjdydw.ttf",
+});
+
+Font.register({
+  family: "Fira",
+  src: "http://fonts.gstatic.com/s/firamono/v5/SlRWfq1zeqXiYWAN-lnG-qCWcynf_cDxXwCLxiixG1c.ttf",
+});
+
 interface Render {
-  user: User | null;
-  assignment: Assignment | null;
-  questions: Question[] | null;
-  submission: Submission | null;
+  user?: User;
+  assignment?: Assignment;
+  questions?: Question[];
+  submission?: Submission;
 }
 
-const Render: React.FC<Render> = ({
+export const Render: React.FC<Render> = ({
   user,
   assignment,
   questions,
@@ -21,16 +36,46 @@ const Render: React.FC<Render> = ({
 }) => {
   return (
     <Document>
-      <Page>
-        <Text>HEllwo {user?.name}</Text>
-        <Text>{assignment?.name}</Text>
+      <Page
+        style={{ padding: "40px", paddingLeft: "70px", paddingRight: "70px" }}
+      >
+        <Text
+          style={{
+            textAlign: "center",
+            marginBottom: "20px",
+            fontFamily: "Poppins",
+          }}
+        >
+          {assignment?.name}
+        </Text>
+        <Text
+          style={{
+            fontSize: "12px",
+            textAlign: "right",
+            fontFamily: "Poppins",
+            marginBottom: "50px",
+          }}
+        >
+          {user?.name}
+        </Text>
         <Text>
           {questions?.map((q, idx) => {
             return (
-              <div key={idx}>
-                <Text>{q.prompt}</Text>
-                <Text>{submission?.code[idx]}</Text>
-              </div>
+              <View key={q.id}>
+                <Text
+                  style={{
+                    fontFamily: "Tinos",
+                    fontSize: "14px",
+                  }}
+                >
+                  Q{idx + 1}. {q.prompt}
+                  &#13;&#10; &#13;&#10;
+                </Text>
+                <Text style={{ fontFamily: "Fira", fontSize: "13px" }}>
+                  {submission?.code[idx]}
+                  &#13;&#10; &#13;&#10; &#13;&#10; &#13;&#10;
+                </Text>
+              </View>
             );
           })}
         </Text>
@@ -48,14 +93,7 @@ const PDFDownload: React.FC<PDFDownload> = ({ fileName }) => {
   const { id: assignmentId } = useParams();
 
   const [instance, updateInstance] = usePDF({
-    document: (
-      <Render
-        user={null}
-        assignment={null}
-        questions={null}
-        submission={null}
-      />
-    ),
+    document: <Render />,
   });
 
   const { data: user, isSuccess: userIsSuccess } = useQuery({
