@@ -86,7 +86,20 @@ router.get("/defaulters/:id", async (req: Request, res: Response) => {
     const defaulters = allUserIds.filter(
       (id: string) => !submittedIds.includes(id)
     );
-    res.json(defaulters);
+
+    if (defaulters.length === 0) {
+      res.json([]);
+    }
+
+    const defaultersData = await prisma.user.findMany({
+      where: {
+        id: {
+          in: defaulters,
+        },
+      },
+    });
+
+    res.json(defaultersData);
   } catch (error) {
     res.status(404).json({ error: "Invalid assignment ID" });
   }
@@ -107,7 +120,19 @@ router.get("/submitted/:id", async (req: Request, res: Response) => {
 
     const submittedIds = assignment.submissions.map((s: any) => s.userId);
 
-    res.json(submittedIds);
+    if (submittedIds.length === 0) {
+      res.json([]);
+    }
+
+    const submittedData = await prisma.user.findMany({
+      where: {
+        id: {
+          in: submittedIds,
+        },
+      },
+    });
+
+    res.json(submittedData);
   } catch (error) {
     res.status(404).json({ error: "Invalid assignment ID" });
   }
