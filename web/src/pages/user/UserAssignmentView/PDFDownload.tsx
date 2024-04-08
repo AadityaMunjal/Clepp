@@ -165,6 +165,7 @@ const PDFDownload: React.FC<PDFDownload> = ({ fileName }) => {
     assignmentIsSuccess,
     questionsIsSuccess,
     submissionIsSuccess,
+    assignmentId,
   ]);
 
   if (instance.loading) return <div>Loading ...</div>;
