@@ -1,23 +1,7 @@
-import { ButtonHTMLAttributes, useReducer, useState } from "react";
+import { useReducer, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { Assignment } from "@prisma/client";
-
-interface ButtonProps {
-  props: ButtonHTMLAttributes<HTMLButtonElement>;
-  children: React.ReactNode | string;
-}
-
-const Button: React.FC<ButtonProps> = ({ props, children }) => {
-  return (
-    <button
-      className="bg-cyan-500 px-11 py-3 rounded-md text-white"
-      onClick={() => console.log()}
-    >
-      {children}
-    </button>
-  );
-};
 
 function questionsReducer(state: any, action: any) {
   switch (action.type) {
