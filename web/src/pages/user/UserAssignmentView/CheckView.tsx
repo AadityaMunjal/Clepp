@@ -36,6 +36,9 @@ const CheckView: React.FC<CheckViewProps> = ({
   const [checking, setChecking] = useState<boolean>(check);
   const [status, setStatus] = useState<Status[]>(_status);
   const [isComplete, setIsComplete] = useState<boolean>(false);
+  const [codeIsChanged, setCodeIsChanged] = useState<boolean[]>(
+    Array(status.length).fill(false)
+  );
 
   useEffect(() => {
     setIsComplete(status.every((s) => s === Status.SUCCESSFUL));
@@ -52,6 +55,12 @@ const CheckView: React.FC<CheckViewProps> = ({
   useEffect(() => {
     setCurrentCode(checkViewCode);
   }, [checkViewCode]);
+
+  useEffect(() => {
+    setCodeIsChanged((prev) =>
+      prev.map((_, idx) => checkViewCode[idx] !== currentCode[idx])
+    );
+  }, [currentCode, checkViewCode]);
 
   const checkQuestion = async (code: string, q_id: string) => {
     // no caching
@@ -195,9 +204,12 @@ const CheckView: React.FC<CheckViewProps> = ({
                 }}
                 value={currentCode[idx]}
               />
-              <div className="bg-yellow-600 rounded-sm text-white">
-                {c !== currentCode[idx] && "Code changed!"}
-              </div>
+
+              {codeIsChanged[idx] && (
+                <div className="bg-yellow-600 rounded-sm text-white">
+                  Code changed!
+                </div>
+              )}
               <hr className="mt-3 border-zinc-700" />
             </div>
           );
