@@ -115,7 +115,7 @@ export default function CreateAssignment() {
           autoFocus
           placeholder="Enter assignment name..."
           className="bg-zinc-900 p-6 pl-0 w-2/3 text-4xl outline-none border-b border-zinc-400 text-zinc-400"
-          onChange={(e) => setName(e.target.value)}
+          onChange={(e) => setName(e.target.value.trim())}
         />
       </>
     );
