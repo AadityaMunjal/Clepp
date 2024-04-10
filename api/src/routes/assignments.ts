@@ -74,22 +74,18 @@ router.get("/defaulters/:id", async (req: Request, res: Response) => {
         submissions: true,
       },
     });
-    const submittedIds = assignment.submissions.map((s: any) => s.userId);
+    const submittedIds = await assignment.submissions.map((s: any) => s.userId);
     const allUsers = await prisma.user.findMany({
       where: {
         year: assignment.year,
       },
     });
 
-    const allUserIds = allUsers.map((u: any) => u.id);
+    const allUserIds = await allUsers.map((u: any) => u.id);
 
-    const defaulters = allUserIds.filter(
+    const defaulters = await allUserIds.filter(
       (id: string) => !submittedIds.includes(id)
     );
-
-    if (defaulters.length === 0) {
-      res.json([]);
-    }
 
     const defaultersData = await prisma.user.findMany({
       where: {
@@ -119,10 +115,6 @@ router.get("/submitted/:id", async (req: Request, res: Response) => {
     });
 
     const submittedIds = assignment.submissions.map((s: any) => s.userId);
-
-    if (submittedIds.length === 0) {
-      res.json([]);
-    }
 
     const submittedData = await prisma.user.findMany({
       where: {
