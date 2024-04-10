@@ -2,6 +2,7 @@ import { useState, Dispatch } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { Assignment } from "@prisma/client";
+import AdminNavbar from "./AdminNavbar";
 
 enum Stage {
   "NAME",
@@ -170,6 +171,7 @@ export default function CreateAssignment() {
   ];
   return (
     <div className="bg-zinc-900 min-h-screen text-white p-32 px-52">
+      <AdminNavbar />
       <div className="text-zinc-500 mb-36">
         Create a new assignment (step {stage + 1} of 4)
       </div>

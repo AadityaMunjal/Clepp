@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
+import AdminNavbar from "./AdminNavbar";
 
 const AddUsers: React.FC = () => {
   const { signup, currentUser, logout } = useAuth();
@@ -70,7 +71,8 @@ const AddUsers: React.FC = () => {
   }, [currentUser]);
 
   return (
-    <>
+    <div>
+      <AdminNavbar />
       <div>
         <h2 className="text-center mb-4">Sign Up</h2>
         {JSON.stringify(error)}
@@ -120,7 +122,7 @@ const AddUsers: React.FC = () => {
       <div className="w-100 text-center mt-2">
         Already have an account? <a href="/login">Log In</a>
       </div>
-    </>
+    </div>
   );
 };
 

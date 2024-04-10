@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { useAuth } from "../../contexts/AuthContext";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { Assignment } from "@prisma/client";
+import AdminNavbar from "./AdminNavbar";
 
 const fetchAllAssignments = () => {
   return axios
@@ -64,6 +64,7 @@ const AssignmentCard: React.FC<AssignmentCardProps> = ({ assignment }) => {
       <div className="flex justify-between">
         <div>
           <div className="text-2xl">{assignment.name}</div>
+          <div className="text-sm">Class {assignment.year}</div>
           <div className="text-sm">
             {defaulters &&
               defaultersIsSuccess &&
@@ -84,76 +85,20 @@ const AssignmentCard: React.FC<AssignmentCardProps> = ({ assignment }) => {
           style={{ width: `${percentage}%` }}
         ></div>
       </div>
-
-      {/* <p>{assignment.year}</p> */}
     </div>
   );
 };
 
 export default function AdminDashboard() {
-  const [error, setError] = useState("");
-  const { logout } = useAuth();
-
   const { data: assignments } = useQuery({
     queryKey: ["assignments"],
     queryFn: fetchAllAssignments,
   });
 
-  async function handleLogout() {
-    setError("");
-
-    try {
-      logout && (await logout());
-    } catch {
-      setError("Failed to log out");
-    }
-  }
-
   return (
     <>
       <div className="min-h-screen text-white bg-zinc-900">
-        <nav className="bg-zinc-800 fixed w-full z-20 top-0 start-0 border-b border-zinc-600">
-          <div className="w-screen mx-auto p-4">
-            <div className="w-auto order-1">
-              <ul className="flex justify-center p-0 font-medium rounded-lg space-x-8 mt-0 border-0 bg-zinc-800 border-zinc-700">
-                <li>
-                  <a
-                    href="/admin"
-                    className="block py-2 px-3 hover:bg-zinc-700 rounded bg-transparent p-0 text-white"
-                    aria-current="page"
-                  >
-                    Home
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="/admin/create"
-                    className="block py-2 px-3 rounded p-0 text-white hover:bg-zinc-700 hover:text-white hover:bg-transparent border-zinc-700"
-                  >
-                    Create Assignment
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="/admin/add-users"
-                    className="block py-2 px-3 rounded p-0 text-white hover:bg-zinc-700 hover:text-white hover:bg-transparent border-zinc-700"
-                  >
-                    Add Students
-                  </a>
-                </li>
-                <li>
-                  <a
-                    onClick={handleLogout}
-                    className="block py-2 px-3 rounded p-0 text-white hover:bg-zinc-700 hover:text-white hover:bg-transparent border-zinc-700"
-                  >
-                    Logout
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </nav>
-        <div className="my-20"> </div>
+        <AdminNavbar />
         <div>
           <div className="ml-10 mt-24 text-2xl">Active assignments</div>
           <div className="grid grid-cols-3">
@@ -162,7 +107,6 @@ export default function AdminDashboard() {
                 return <AssignmentCard assignment={a} key={a.id} />;
               })}
           </div>
-          {error && <p>{error}</p>}
         </div>
       </div>
     </>
