@@ -1,37 +1,7 @@
-import { useReducer, useState } from "react";
+import { useState, Dispatch } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { Assignment } from "@prisma/client";
-
-function questionsReducer(state: any, action: any) {
-  switch (action.type) {
-    case "prompt_change": {
-      return [
-        ...state.slice(0, action.index),
-        {
-          ...state[action.index],
-          prompt: action.nextPrompt,
-        },
-        ...state.slice(action.index + 1),
-      ];
-    }
-
-    case "testcase_change": {
-      return [
-        ...state.slice(0, action.index),
-        {
-          ...state[action.index],
-          test_case: action.nextTestcases,
-        },
-        ...state.slice(action.index + 1),
-      ];
-    }
-    case "add_blank_question": {
-      return [...state, { prompt: "", test_case: "" }];
-    }
-  }
-  throw Error("Unknown action: " + action.type);
-}
 
 enum Stage {
   "NAME",
@@ -42,14 +12,79 @@ enum Stage {
 
 type CreateAssignmentData = Omit<Assignment, "id" | "DOC" | "pfp_color">;
 
+interface Questions {
+  promptsState: [string[], Dispatch<React.SetStateAction<string[]>>];
+  testCasesState: [string[], Dispatch<React.SetStateAction<string[]>>];
+}
+
+const Questions: React.FC<Questions> = ({ promptsState, testCasesState }) => {
+  const [prompts, setPrompts] = promptsState;
+  const [testCases, setTestCases] = testCasesState;
+  const [promptText, setPromptText] = useState("");
+  const [testCaseText, setTestCaseText] = useState("");
+  return (
+    <>
+      <div className="text-4xl text-zinc-500 mb-2">Add questions</div>
+      {/* {JSON.stringify(prompts)}
+      {JSON.stringify(testCases)} */}
+      <div className="flex text-zinc-900 mt-7">
+        <textarea
+          value={promptText}
+          rows={3}
+          placeholder="Enter prompt..."
+          className="w-1/2 mr-8 p-2 rounded-xl outline-zinc-900"
+          onChange={(e) => {
+            setPromptText(e.target.value);
+          }}
+        />
+        <textarea
+          value={testCaseText}
+          rows={3}
+          placeholder="Enter test case..."
+          className="w-1/2 ml-8 p-2 rounded-xl outline-zinc-900"
+          onChange={(e) => {
+            setTestCaseText(e.target.value);
+          }}
+        />
+      </div>
+      <div className="flex justify-end my-5">
+        <button
+          className="bg-zinc-700 px-7 py-3 rounded-md text-white"
+          onClick={() => {
+            setPrompts([...prompts, promptText]);
+            setTestCases([...testCases, testCaseText]);
+            setPromptText("");
+            setTestCaseText("");
+          }}
+        >
+          Add question
+        </button>
+      </div>
+      <div className="bg-zinc-800">
+        {prompts.map((p, idx) => (
+          <div key={idx} className="border-b border-zinc-700 py-5">
+            <div className="flex">
+              <div className="bg-zinc-800 w-1/2 p-3 pl-0 text-sm mx-8">
+                Q{idx + 1}. {p}
+              </div>
+              <div className="bg-zinc-900 w-1/2 p-3 pr-0 text-sm mx-8 rounded-xl">
+                {testCases[idx]}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </>
+  );
+};
+
 export default function CreateAssignment() {
   const [stage, setStage] = useState<Stage>(0);
   const [name, setName] = useState("");
   const [year, setYear] = useState<"11" | "12">("11");
   const [deadline, setDeadline] = useState<Date>(new Date());
-  const [questions, dispatch] = useReducer(questionsReducer, [
-    { prompt: "", test_case: "" },
-  ]);
+  const [prompts, setPrompts] = useState<string[]>([]);
+  const [testCases, setTestCases] = useState<string[]>([]);
 
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -124,56 +159,15 @@ export default function CreateAssignment() {
     );
   };
 
-  const Questions = () => {
-    return (
-      <>
-        <div className="text-4xl text-zinc-500 mb-2">Add questions</div>
-        {JSON.stringify(questions)}
-        <div className="bg-zinc-800">
-          {questions.map((question, index) => (
-            <div key={index} className="border-b border-zinc-700 py-5">
-              <div>Q{index + 1}. </div>
-              <div className="flex">
-                <input
-                  type="text"
-                  value={question.prompt}
-                  className="bg-zinc-800 text-white outline-none w-1/2 p-3 text-sm mx-8"
-                  onChange={(e) =>
-                    dispatch({
-                      type: "prompt_change",
-                      index,
-                      nextPrompt: e.target.value,
-                    })
-                  }
-                />
-                <textarea
-                  value={question.test_case}
-                  rows={question.test_case.split("\n").length + 1}
-                  className="bg-zinc-900 text-white outline-none w-1/2 p-3 text-sm mx-8 rounded-xl"
-                  onChange={(e) =>
-                    dispatch({
-                      type: "testcase_change",
-                      index,
-                      nextTestcases: e.target.value,
-                    })
-                  }
-                />
-              </div>
-            </div>
-          ))}
-          <button
-            onClick={() => {
-              dispatch({ type: "add_blank_question" });
-            }}
-          >
-            Add another question
-          </button>
-        </div>
-      </>
-    );
-  };
-
-  const StageComponents = [<Name />, <Year />, <Deadline />, <Questions />];
+  const StageComponents = [
+    <Name />,
+    <Year />,
+    <Deadline />,
+    <Questions
+      promptsState={[prompts, setPrompts]}
+      testCasesState={[testCases, setTestCases]}
+    />,
+  ];
   return (
     <div className="bg-zinc-900 min-h-screen text-white p-32 px-52">
       <div className="text-zinc-500 mb-36">
@@ -204,7 +198,11 @@ export default function CreateAssignment() {
         {stage === 3 && (
           <button
             onClick={() => {
-              const data = { name, year, deadline, questions };
+              const q = prompts.map((p, idx) => ({
+                prompt: p,
+                test_case: testCases[idx],
+              }));
+              const data = { name, year, deadline, questions: q };
               console.log(data);
               assignmentMutation.mutate(data);
             }}
