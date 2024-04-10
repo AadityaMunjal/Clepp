@@ -115,7 +115,7 @@ export default function CreateAssignment() {
           autoFocus
           placeholder="Enter assignment name..."
           className="bg-zinc-900 p-6 pl-0 w-2/3 text-4xl outline-none border-b border-zinc-400 text-zinc-400"
-          onChange={(e) => setName(e.target.value.trim())}
+          onChange={(e) => setName(e.target.value)}
         />
       </>
     );
@@ -202,7 +202,7 @@ export default function CreateAssignment() {
                 prompt: p,
                 test_case: testCases[idx],
               }));
-              const data = { name, year, deadline, questions: q };
+              const data = { name: name.trim(), year, deadline, questions: q };
               console.log(data);
               assignmentMutation.mutate(data);
             }}
