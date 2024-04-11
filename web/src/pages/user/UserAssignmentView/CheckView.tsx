@@ -21,6 +21,7 @@ interface CheckViewProps {
   _status: Status[];
   submissionId: string;
   assignmentId: string;
+  currentUserId: string;
   fileName: string;
 }
 
@@ -31,6 +32,7 @@ const CheckView: React.FC<CheckViewProps> = ({
   _status,
   submissionId,
   assignmentId,
+  currentUserId,
   fileName,
 }) => {
   const [checking, setChecking] = useState<boolean>(check);
@@ -78,7 +80,7 @@ const CheckView: React.FC<CheckViewProps> = ({
   const updateStatusMutation = useMutation({
     mutationFn: async (status: Status[]) => {
       const res = axios.post(
-        `http://localhost:3000/submissions/${submissionId}`,
+        `http://localhost:3000/submissions/update/${submissionId}`,
         {
           status,
         }

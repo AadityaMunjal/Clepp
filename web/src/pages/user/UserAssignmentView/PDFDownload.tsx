@@ -132,6 +132,7 @@ const PDFDownload: React.FC<PDFDownload> = ({ fileName }) => {
   const { data: submission, isSuccess: submissionIsSuccess } = useQuery({
     queryKey: ["submission", assignmentId],
     enabled: !!currentUser?.uid && !!assignmentId,
+    retry: 0,
     queryFn: () => {
       return axios
         .get(

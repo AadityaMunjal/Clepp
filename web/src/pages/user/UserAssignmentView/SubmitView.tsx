@@ -87,38 +87,8 @@ const SubmitView: React.FC<SubmitViewProps> = ({
   const [unsavedChanges, setUnsavedChanges] = useState<boolean>(false);
   const [validCode, setValidCode] = useState<boolean>(false);
 
-  const queryClient = useQueryClient();
-  const { currentUser } = useAuth();
-
   const staticSubmission =
     convertArrayToCode(fetchedSubmission?.code || []) || "";
-
-  const initialSubmissionMutation = useMutation({
-    mutationFn: () => {
-      return axios
-        .post(
-          `http://localhost:3000/submissions/${currentUser?.uid}/${assignmentId}`,
-          {
-            code: "",
-            status: Array(fetchedQuestions?.length).fill("UNRUN"),
-          }
-        )
-        .then((res) => res.data as Submission);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["submission", assignmentId] });
-    },
-  });
-
-  // create initial submission if not found
-  useEffect(() => {
-    if (submissionFetchStatus !== "idle") return;
-    const err = submissionError as any;
-    if (!err?.response) return;
-    if (err?.response.status === 404) {
-      initialSubmissionMutation.mutate();
-    }
-  }, [submissionError]);
 
   const submitSubmissionMutation = useMutation({
     mutationFn: () => {

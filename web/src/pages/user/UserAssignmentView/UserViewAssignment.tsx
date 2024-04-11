@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import HomeSidebar from "../../../components/Sidebar/HomeSidebar";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useAuth } from "../../../contexts/AuthContext";
@@ -20,6 +20,8 @@ const UserViewAssignment: React.FC = () => {
 
   const { id: assignmentId } = useParams();
   const { currentUser } = useAuth();
+
+  const queryClient = useQueryClient();
 
   const { data: user } = useQuery({
     queryKey: ["user", currentUser?.uid],
@@ -73,6 +75,7 @@ const UserViewAssignment: React.FC = () => {
     isSuccess: submissionIsSuccess,
   } = useQuery({
     queryKey: ["submission", assignmentId],
+    retry: 0,
     enabled: !!currentUser?.uid && !!assignmentId,
     queryFn: () => {
       return axios
@@ -93,15 +96,46 @@ const UserViewAssignment: React.FC = () => {
     );
   }, [assignmentsIsSuccess, assignmentId]);
 
+  const initialSubmissionMutation = useMutation({
+    mutationFn: () => {
+      return axios
+        .post(
+          `http://localhost:3000/submissions/create/${currentUser?.uid}/${assignmentId}`,
+          {
+            code: [],
+            status: Array(fetchedQuestions?.length).fill("UNRUN"),
+          }
+        )
+        .then((res) => res.data as Submission);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["submission", assignmentId] });
+    },
+  });
+
+  // create initial submission if not found
+  useEffect(() => {
+    if (submissionFetchStatus !== "idle") return;
+    const err = submissionError as any;
+    if (err?.response?.status === 404) {
+      initialSubmissionMutation.mutate();
+    }
+  }, [submissionError]);
+
   useEffect(() => {
     if (!submissionIsSuccess || !questionsIsSuccess) return;
+    const submissionErr = submissionError as any;
 
     if (fetchedSubmission?.code.length === fetchedQuestions?.length) {
       setView("check");
     } else {
       setView("submit");
     }
-  }, [submissionIsSuccess, questionsIsSuccess, assignmentId]);
+
+    if (submissionErr?.response?.status === 404) {
+      setView("submit");
+    }
+  }, [submissionIsSuccess, questionsIsSuccess, assignmentId, submissionError]);
 
   return (
     <>
@@ -143,6 +177,7 @@ const UserViewAssignment: React.FC = () => {
                 _status={fetchedSubmission?.status || ([] as any)}
                 assignmentId={assignment?.id || ""}
                 submissionId={fetchedSubmission?.id || ""}
+                currentUserId={currentUser?.uid || ""}
                 fileName={`${assignment?.name} - ${user?.name}`}
               />
             ))}

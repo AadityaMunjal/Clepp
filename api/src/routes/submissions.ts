@@ -29,7 +29,7 @@ router.get("/:uid/:aid", async (req: Request, res: Response) => {
   }
 });
 
-router.post("/:sid", async (req: Request, res: Response) => {
+router.post("/update/:sid", async (req: Request, res: Response) => {
   const submission_id = req.params.sid;
   const code = req.body.code;
   const status = req.body.status;
@@ -48,6 +48,25 @@ router.post("/:sid", async (req: Request, res: Response) => {
       id: submission_id,
     },
     data,
+  });
+
+  res.json(submission);
+});
+
+router.post("/create/:uid/:aid", async (req: Request, res: Response) => {
+  const aid = req.params.aid;
+  const uid = req.params.uid;
+  const code = req.body.code;
+  const status = req.body.status;
+
+  const submission = await prisma.submission.create({
+    data: {
+      code,
+      status,
+      assignmentId: aid,
+      userId: uid,
+      DOS: new Date(),
+    },
   });
 
   res.json(submission);
