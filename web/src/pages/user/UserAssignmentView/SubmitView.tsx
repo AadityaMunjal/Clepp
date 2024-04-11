@@ -1,8 +1,7 @@
 import { Question, Submission } from "@prisma/client";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { useAuth } from "../../../contexts/AuthContext";
 
 interface SubmitViewQuestionProps {
   prompt: string;
@@ -60,21 +59,17 @@ const convertArrayToCode = (a: string[]): string => {
 };
 
 interface SubmitViewProps {
-  assignmentId: string | undefined;
   fetchedSubmission: Submission | null;
-  submissionFetchStatus: string;
-  submissionError: any;
   fetchedQuestions: Question[] | null;
   questionsIsSuccess: boolean;
+  fileName: string;
 }
 
 const SubmitView: React.FC<SubmitViewProps> = ({
-  assignmentId,
   fetchedQuestions,
   fetchedSubmission,
-  submissionFetchStatus,
-  submissionError,
   questionsIsSuccess,
+  fileName,
 }) => {
   const [currentCode, setCurrentCode] = useState<string>(
     convertArrayToCode(fetchedSubmission?.code || []) || ""
@@ -109,8 +104,31 @@ const SubmitView: React.FC<SubmitViewProps> = ({
     console.log(convertCodeToArray(currentCode));
   }, [currentCode]);
 
+  const downloadStarterTemplate = () => {
+    const fileData = fetchedQuestions!
+      .map((q, idx) => `#Q${idx + 1} ${q.prompt}`)
+      .join("\n\n\n\n\n");
+    const a = window.document.createElement("a");
+    a.href = window.URL.createObjectURL(
+      new Blob([fileData], { type: "octet/stream" })
+    );
+    a.download = fileName + ".py";
+
+    // Append anchor to body.
+    document.body.appendChild(a);
+    a.click();
+
+    // Remove anchor from body
+    document.body.removeChild(a);
+  };
+
   return (
     <div>
+      <div>
+        <button onClick={downloadStarterTemplate}>
+          Download Starter Template
+        </button>
+      </div>
       <div>
         {questionsIsSuccess && (
           <div className="">

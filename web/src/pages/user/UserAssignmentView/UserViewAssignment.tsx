@@ -162,12 +162,10 @@ const UserViewAssignment: React.FC = () => {
           {assignmentsIsSuccess &&
             (view === "submit" ? (
               <SubmitView
-                assignmentId={assignmentId}
                 fetchedQuestions={fetchedQuestions || []}
                 fetchedSubmission={fetchedSubmission || null}
                 questionsIsSuccess={questionsIsSuccess}
-                submissionError={submissionError}
-                submissionFetchStatus={submissionFetchStatus}
+                fileName={`${assignment?.name} - ${user?.name}`}
               />
             ) : (
               <CheckView
@@ -177,7 +175,6 @@ const UserViewAssignment: React.FC = () => {
                 _status={fetchedSubmission?.status || ([] as any)}
                 assignmentId={assignment?.id || ""}
                 submissionId={fetchedSubmission?.id || ""}
-                currentUserId={currentUser?.uid || ""}
                 fileName={`${assignment?.name} - ${user?.name}`}
               />
             ))}
