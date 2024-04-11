@@ -86,6 +86,14 @@ def handle_execute():
             result = exec_python(c)
             print(result)
             end = timer()
+
+            checks = []
+            for i in range(len(eval(raw_test_cases)["__outputs"])):
+                o = result.split("\n")[i]
+                if str(o) != str(eval(raw_test_cases)["__outputs"][i]):
+                    checks.append(False)
+                else:
+                    checks.append(True)
         else:
             c = (
                 inp_handler
@@ -100,15 +108,6 @@ def handle_execute():
             result = exec_python(c)
             end = timer()
 
-        if "def " not in code:
-            checks = []
-            for i in range(len(eval(raw_test_cases)["__outputs"])):
-                o = result.split("\n")[i]
-                if str(o) != str(eval(raw_test_cases)["__outputs"][i]):
-                    checks.append(False)
-                else:
-                    checks.append(True)
-        else:
             checks = eval(result)
 
         print(jsonify({"result": result}))
