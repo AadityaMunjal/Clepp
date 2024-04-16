@@ -28,6 +28,11 @@ raw_test_cases = """{
     "__outputs": tuple((6, -1)),
 }"""
 
+new_version = [
+    {"__inputs": (5, 6), "__print": (6,)},
+    {"__validate": "(q1(5, 6) == 6, q1(-1, -3) == -1)"},
+]
+
 
 res = requests.get(
     "http://127.0.0.1:5000/execute", json={"c": code, "tc": raw_test_cases}
