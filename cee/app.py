@@ -1,6 +1,4 @@
-# import docker
-# import uuid
-from flask import Flask, logging, request, jsonify
+from flask import Flask, request, jsonify
 from timeit import default_timer as timer
 
 from flask_cors import cross_origin
@@ -24,13 +22,6 @@ def exec_python(c):
 
 
 app = Flask(__name__)
-
-func_validation = """
-funcs = ([f for f in locals().values() if type(f) == type(lambda x: None) and f.__name__[0] in "Qq"])
-
-using_funcs = len(funcs) != 0
-# print("using functions", using_funcs)
-"""
 
 
 # static
@@ -58,9 +49,9 @@ input = answer_inputs
 
 """
 
-# static
 testing = """
-print(testcases["__outputs"])
+print(__name__)
+print(eval(testcases["__validate"]))
 """
 
 
@@ -70,48 +61,23 @@ def handle_execute():
     try:
         data = request.get_json()
         code = data.get("c")
-        raw_test_cases = "{" + data.get("tc") + "}"
-        code_count = 1 if "def " in code else 1  # make this dynamic later
+        raw_test_cases = data.get("tc")
 
-        if "def " not in code:
-            c = (
-                "testcases = "
-                + raw_test_cases
-                + inp_handler
-                + (code + "\n") * code_count
-            )
-            print(c)
+        c = "testcases = " + raw_test_cases + inp_handler + code + testing
 
-            start = timer()
-            result = exec_python(c)
-            print(result)
-            end = timer()
+        print(c)
 
-            checks = []
-            for i in range(len(eval(raw_test_cases)["__outputs"])):
-                o = result.split("\n")[i]
-                if str(o) != str(eval(raw_test_cases)["__outputs"][i]):
-                    checks.append(False)
-                else:
-                    checks.append(True)
-        else:
-            c = (
-                inp_handler
-                + (code + "\n") * code_count
-                + "testcases = "
-                + raw_test_cases
-                + testing
-            )
-            print(c)
+        start = timer()
+        result = exec_python(c)
+        print(result)
+        end = timer()
 
-            start = timer()
-            result = exec_python(c)
-            end = timer()
-
-            checks = eval(result)
+        validation = eval(result.split("__main__")[1].strip().split("\n")[0].strip())
+        print((validation))
 
         print(jsonify({"result": result}))
-        return jsonify({"checks": checks, "exec_time": end - start})
+        return jsonify({"checks": validation, "exec_time": end - start})
+
     except Exception as e:
         return jsonify({"error": str(e)})
 
