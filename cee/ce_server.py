@@ -1,4 +1,3 @@
-import subprocess
 import requests
 
 # code = """
@@ -29,17 +28,37 @@ import requests
 # }"""
 
 new_version = """{
-        "__inputs": ((5, 6),),
-        "__validate": "(q1(5, 6) == 6, q1(-1, -3) == -1)",
+        "__inputs": ((5, 6), (-3, -1)),
+        "__validate": "(q1() == 6, q1() == -1)",
+        "__outputs": (6, -1),
     }"""
+
+# validate must be a code block that gets executed and its print output be the bool testing value
+# with inputs but not returning
+new_version = {
+    "exec_count": 2,
+    "__inputs": tuple(),
+    "__validate": """
+q1(5, 6)
+q1(-3, -1)
+""",
+    "__outputs": tuple((6, -1)),
+}
+
+
+# with args but not returning
+# with args and returning
+# without args and returning
 
 
 code = """
 def q1(a, b):
     if a > b:
-        return a
+        print(a)
+        # return a
     else:
-        return b
+        print(b)
+        # return b
 """
 
 res = requests.post(
