@@ -27,19 +27,25 @@ app = Flask(__name__)
 # static
 inp_handler = """
 input_idx = 0
+test_case_idx = 0
 
 
 # replacing built in input function with custom input feeder to give in inputs from testcases
 def answer_inputs(_=""):
-    global input_idx
-    tc_inputs = testcases["__inputs"]
+    global input_idx, test_case_idx, testcases
+    tc_inputs = testcases["__inputs"][test_case_idx]
+    curr_input = tc_inputs[input_idx]
 
-    input_idx += 1
+    if input_idx == len(testcases["__inputs"][test_case_idx]) - 1:
+        input_idx = 0
+        test_case_idx += 1
+    else:
+        input_idx += 1
+ 
+    return curr_input
 
-    return tc_inputs[input_idx]
 
-
-input = answer_inputs
+globals()["input"] = answer_inputs
 
 """
 
@@ -72,11 +78,17 @@ def handle_execute():
         print("RESULT-------------------")
         print(result)
         print("VALID-OUTPUT-------------------")
-        result_li = list(filter(lambda x: x != "", result.split("\n")))
-        print([str(valid_o) == result_li[i] for i, valid_o in enumerate(valid_output)])
+        try:
+            result_li = list(filter(lambda x: x != "", result.split("\n")))
+            checks = [
+                str(valid_o) == result_li[i] for i, valid_o in enumerate(valid_output)
+            ]
+        except IndexError:
+            result_li = []
+            checks = [False]
 
         print(jsonify({"result": result}))
-        return jsonify({"checks": result, "exec_time": end - start})
+        return jsonify({"checks": checks, "exec_time": end - start})
 
     except Exception as e:
         return jsonify({"error": str(e)})
