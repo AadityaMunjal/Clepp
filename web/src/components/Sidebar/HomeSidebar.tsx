@@ -24,20 +24,21 @@ const HomeSidebar: React.FC<HomeSidebarProps> = ({
   return (
     <Sidebar>
       <div className="mt-5">
-        {assignments?.map((a) => {
-          return (
-            <SidebarAssignment
-              name={a.name}
-              pfpColor={a.pfp_color}
-              subText=""
-              year={a.year as "11" | "12"}
-              id={a.id}
-              deadline={a.deadline.toString()}
-              selected={a.id === selectedItem}
-              key={a.id}
-            />
-          );
-        })}
+        {assignments &&
+          assignments?.map((a) => {
+            return (
+              <SidebarAssignment
+                name={a.name}
+                pfpColor={a.pfp_color}
+                subText=""
+                year={a.year as "11" | "12"}
+                id={a.id}
+                deadline={a.deadline.toString()}
+                selected={a.id === selectedItem}
+                key={a.id}
+              />
+            );
+          })}
       </div>
     </Sidebar>
   );
