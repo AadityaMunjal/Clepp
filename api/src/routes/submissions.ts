@@ -43,14 +43,18 @@ router.post("/update/:sid", async (req: Request, res: Response) => {
     data["code"] = code;
   }
 
-  const submission = await prisma.submission.update({
-    where: {
-      id: submission_id,
-    },
-    data,
-  });
+  try {
+    const submission = await prisma.submission.update({
+      where: {
+        id: submission_id,
+      },
+      data,
+    });
 
-  res.json(submission);
+    res.json(submission);
+  } catch (error) {
+    res.status(404).json({ message: error });
+  }
 });
 
 router.post("/create/:uid/:aid", async (req: Request, res: Response) => {

@@ -1,5 +1,5 @@
 import { Question, Submission } from "@prisma/client";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { useEffect, useState } from "react";
 
@@ -63,6 +63,7 @@ interface SubmitViewProps {
   fetchedQuestions: Question[] | null;
   questionsIsSuccess: boolean;
   fileName: string;
+  setView: React.Dispatch<React.SetStateAction<"submit" | "check">>;
 }
 
 const SubmitView: React.FC<SubmitViewProps> = ({
@@ -70,7 +71,10 @@ const SubmitView: React.FC<SubmitViewProps> = ({
   fetchedSubmission,
   questionsIsSuccess,
   fileName,
+  setView,
 }) => {
+  const queryClient = useQueryClient();
+
   const [currentCode, setCurrentCode] = useState<string>(
     convertArrayToCode(fetchedSubmission?.code || []) || ""
   );
@@ -82,23 +86,36 @@ const SubmitView: React.FC<SubmitViewProps> = ({
   const [unsavedChanges, setUnsavedChanges] = useState<boolean>(false);
   const [validCode, setValidCode] = useState<boolean>(false);
 
-  const staticSubmission =
-    convertArrayToCode(fetchedSubmission?.code || []) || "";
-
   const submitSubmissionMutation = useMutation({
     mutationFn: () => {
       return axios
-        .post(`http://localhost:3000/submissions/${fetchedSubmission?.id}`, {
-          code: convertCodeToArray(currentCode),
-          status: fetchedSubmission?.status,
-        })
-        .then((res) => res.data as Submission);
+        .post(
+          `http://localhost:3000/submissions/update/${fetchedSubmission?.id}`,
+          {
+            code: convertCodeToArray(currentCode),
+            status: fetchedSubmission?.status,
+          }
+        )
+        .then((res) => {
+          return res.data as Submission;
+        });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["submission", fetchedSubmission?.id],
+      });
+      console.log(fetchedSubmission?.code.length, fetchedQuestions?.length);
+      if (fetchedSubmission?.code.length === fetchedQuestions?.length) {
+        setView("check");
+      }
     },
   });
 
   // code validation
   useEffect(() => {
-    setUnsavedChanges(currentCode !== staticSubmission);
+    setUnsavedChanges(
+      currentCode !== convertArrayToCode(fetchedSubmission?.code || [])
+    );
     if (!currentCode || !fetchedQuestions) return;
     setValidCode(isCodeValidForCheckView(currentCode, fetchedQuestions.length));
     console.log(convertCodeToArray(currentCode));

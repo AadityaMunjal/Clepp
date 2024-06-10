@@ -23,16 +23,6 @@ const UserViewAssignment: React.FC = () => {
 
   const queryClient = useQueryClient();
 
-  const { data: user } = useQuery({
-    queryKey: ["user", currentUser?.uid],
-    enabled: !!currentUser?.uid,
-    queryFn: () => {
-      return axios
-        .get(`http://localhost:3000/user/${currentUser?.uid}`)
-        .then((res) => res.data) as Promise<User>;
-    },
-  });
-
   const { data: fetchedUser } = useQuery({
     queryKey: ["user", currentUser?.uid],
     enabled: !!currentUser?.uid,
@@ -68,34 +58,6 @@ const UserViewAssignment: React.FC = () => {
     },
   });
 
-  const {
-    data: fetchedSubmission,
-    fetchStatus: submissionFetchStatus,
-    error: submissionError,
-    isSuccess: submissionIsSuccess,
-  } = useQuery({
-    queryKey: ["submission", assignmentId],
-    retry: 0,
-    enabled: !!currentUser?.uid && !!assignmentId,
-    queryFn: () => {
-      return axios
-        .get(
-          `http://localhost:3000/submissions/${currentUser?.uid}/${assignmentId}`
-        )
-        .then((res) => {
-          return res.data[0] as Submission;
-        });
-    },
-  });
-
-  // change assignment and code at assignmentId change
-  useEffect(() => {
-    console.log(assignmentId);
-    setAssignment(
-      fetchedAssignments?.find((a) => a.id === assignmentId) || null
-    );
-  }, [assignmentsIsSuccess, assignmentId]);
-
   const initialSubmissionMutation = useMutation({
     mutationFn: () => {
       return axios
@@ -113,14 +75,39 @@ const UserViewAssignment: React.FC = () => {
     },
   });
 
-  // create initial submission if not found
+  const {
+    data: fetchedSubmission,
+    error: submissionError,
+    isSuccess: submissionIsSuccess,
+  } = useQuery({
+    queryKey: ["submission", assignmentId],
+    retry: 0,
+    enabled: !!currentUser?.uid && !!assignmentId,
+    queryFn: () => {
+      return axios
+        .get(
+          `http://localhost:3000/submissions/${currentUser?.uid}/${assignmentId}`
+        )
+        .then((res) => {
+          return res.data[0] as Submission;
+        })
+        .catch((err) => {
+          const status = err?.response?.status;
+          if (status === 404) {
+            // create initial submission if not found
+            initialSubmissionMutation.mutate();
+            return null;
+          }
+        });
+    },
+  });
+
+  // change assignment and code at assignmentId change
   useEffect(() => {
-    if (submissionFetchStatus !== "idle") return;
-    const err = submissionError as any;
-    if (err?.response?.status === 404) {
-      initialSubmissionMutation.mutate();
-    }
-  }, [submissionError]);
+    setAssignment(
+      fetchedAssignments?.find((a) => a.id === assignmentId) || null
+    );
+  }, [assignmentsIsSuccess, assignmentId]);
 
   useEffect(() => {
     if (!submissionIsSuccess || !questionsIsSuccess) return;
@@ -165,7 +152,8 @@ const UserViewAssignment: React.FC = () => {
                 fetchedQuestions={fetchedQuestions || []}
                 fetchedSubmission={fetchedSubmission || null}
                 questionsIsSuccess={questionsIsSuccess}
-                fileName={`${assignment?.name} - ${user?.name}`}
+                fileName={`${assignment?.name} - ${fetchedUser?.name}`}
+                setView={setView}
               />
             ) : (
               <CheckView
@@ -175,7 +163,7 @@ const UserViewAssignment: React.FC = () => {
                 _status={fetchedSubmission?.status || ([] as any)}
                 assignmentId={assignment?.id || ""}
                 submissionId={fetchedSubmission?.id || ""}
-                fileName={`${assignment?.name} - ${user?.name}`}
+                fileName={`${assignment?.name} - ${fetchedUser?.name}`}
               />
             ))}
         </div>
