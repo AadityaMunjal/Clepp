@@ -35,7 +35,12 @@ const ForgotPassword: React.FC = () => {
           <form onSubmit={handleSubmit}>
             <div id="email">
               <label>Email</label>
-              <input type="email" ref={emailRef} required />
+              <input
+                type="email"
+                ref={emailRef}
+                required
+                className="text-black"
+              />
             </div>
             <button disabled={loading} className="w-100" type="submit">
               Reset Password
