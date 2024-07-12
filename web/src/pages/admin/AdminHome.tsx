@@ -51,7 +51,6 @@ const AssignmentCard: React.FC<AssignmentCardProps> = ({ assignment }) => {
     const percentageSubmitted =
       (submitted.length / (defaulters.length + submitted.length)) * 100;
     setPercentage(percentageSubmitted);
-    setPercentage(75);
   }, [defaultersIsSuccess, submittedIsSuccess]);
 
   return (
