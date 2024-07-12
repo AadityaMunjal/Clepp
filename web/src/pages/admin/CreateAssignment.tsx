@@ -190,6 +190,7 @@ export default function CreateAssignment() {
         {stage !== 3 && (
           <button
             onClick={() => {
+              if (stage === 0 && name.trim() === "") return;
               setStage(stage + 1);
             }}
             className="bg-cyan-500 px-11 py-3 rounded-md text-white"
