@@ -74,7 +74,7 @@ const AddUsers: React.FC = () => {
     <div>
       <AdminNavbar />
       <div>
-        <h2 className="text-center mb-4">Sign Up</h2>
+        <h2 className="text-center mb-4">Add Users</h2>
         {JSON.stringify(error)}
         <form onSubmit={handleSubmit}>
           <div>
@@ -115,13 +115,13 @@ const AddUsers: React.FC = () => {
             </select>
           </div>
           <button disabled={loading} className="w-100" type="submit">
-            Sign Up
+            Add User
           </button>
         </form>
       </div>
-      <div className="w-100 text-center mt-2">
+      {/* <div className="w-100 text-center mt-2">
         Already have an account? <a href="/login">Log In</a>
-      </div>
+      </div> */}
     </div>
   );
 };
