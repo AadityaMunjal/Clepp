@@ -6,7 +6,7 @@ Submit and check coding assignments like never before! 🚀🚀🚀
 
 1. web
 2. API
-3. CEE
+3. CEE (code execution engine)
 
 ## Development
 
